@@ -1035,11 +1035,20 @@
   .cmp-table td.ok   { background: rgba(28,127,214,.08); }
   .cmp-table td.warn { background: rgba(240,140,0,.10); }
   .cmp-table td.fail { background: rgba(224,49,49,.08); }
-  .cmp-table td.ok::before   { content: "● "; color: var(--gauss); font-size: 10px; }
-  .cmp-table td.warn::before { content: "● "; color: var(--gold); font-size: 10px; }
-  .cmp-table td.fail::before { content: "● "; color: var(--erase, #e03131); font-size: 10px; }
   .cmp-table thead th:first-child { width: 110px; }
   .cmp-table td { vertical-align: middle; }
+  .cmp-dot {
+    display: inline-block; width: 11px; height: 11px; border-radius: 50%;
+    margin-right: 6px; vertical-align: middle;
+    border: 1.5px solid var(--border-strong);
+    background: transparent; padding: 0; cursor: default;
+    transition: transform .1s;
+  }
+  td.ok   .cmp-dot { background: var(--gauss); border-color: var(--gauss); }
+  td.warn .cmp-dot { background: var(--gold); border-color: var(--gold); }
+  td.fail .cmp-dot { background: var(--erase, #e03131); border-color: var(--erase, #e03131); }
+  body:not(.viewing) .cmp-dot { cursor: pointer; }
+  body:not(.viewing) .cmp-dot:hover { transform: scale(1.3); }
 
   /* ---------- Node delete button ---------- */
   .del-node {
@@ -1829,45 +1838,45 @@
     <tbody>
       <tr>
         <td class="cmp-row">모션 생성<br>소요시간</td>
-        <td class="ok">약 1시간<br><span class="cmp-sub">텍스트 → BVH</span></td>
-        <td class="warn">약 1시간<br><span class="cmp-sub">30초 영상, RTX 4090</span></td>
-        <td class="ok">촬영 1~2시간<br><span class="cmp-sub">예측 가능</span></td>
+        <td class="ok"><button type="button" class="cmp-dot" onclick="cycleDot(this)" title="색 변경"></button>약 1시간<br><span class="cmp-sub">텍스트 → BVH</span></td>
+        <td class="warn"><button type="button" class="cmp-dot" onclick="cycleDot(this)" title="색 변경"></button>약 1시간<br><span class="cmp-sub">30초 영상, RTX 4090</span></td>
+        <td class="ok"><button type="button" class="cmp-dot" onclick="cycleDot(this)" title="색 변경"></button>촬영 1~2시간<br><span class="cmp-sub">예측 가능</span></td>
       </tr>
       <tr>
         <td class="cmp-row">리타게팅<br>(MetaHuman)</td>
-        <td class="fail">미해결<br><span class="cmp-sub">rest 갭 약 60°</span></td>
-        <td class="fail">미해결<br><span class="cmp-sub">rest 갭 약 30°</span></td>
-        <td class="ok">확립<br><span class="cmp-sub">T-pose 캘리브레이션</span></td>
+        <td class="fail"><button type="button" class="cmp-dot" onclick="cycleDot(this)" title="색 변경"></button>미해결<br><span class="cmp-sub">rest 갭 약 60°</span></td>
+        <td class="fail"><button type="button" class="cmp-dot" onclick="cycleDot(this)" title="색 변경"></button>미해결<br><span class="cmp-sub">rest 갭 약 30°</span></td>
+        <td class="ok"><button type="button" class="cmp-dot" onclick="cycleDot(this)" title="색 변경"></button>확립<br><span class="cmp-sub">T-pose 캘리브레이션</span></td>
       </tr>
       <tr>
         <td class="cmp-row">프로덕션 레디까지<br>총 소요</td>
-        <td class="fail">측정 불가<br><span class="cmp-sub">리타게팅 통과 전</span></td>
-        <td class="fail">수일+ / 실패<br><span class="cmp-sub">블렌더 경로 미수렴</span></td>
-        <td class="ok">반나절~1일<br><span class="cmp-sub">컷당, 안정적</span></td>
+        <td class="fail"><button type="button" class="cmp-dot" onclick="cycleDot(this)" title="색 변경"></button>측정 불가<br><span class="cmp-sub">리타게팅 통과 전</span></td>
+        <td class="fail"><button type="button" class="cmp-dot" onclick="cycleDot(this)" title="색 변경"></button>수일+ / 실패<br><span class="cmp-sub">블렌더 경로 미수렴</span></td>
+        <td class="ok"><button type="button" class="cmp-dot" onclick="cycleDot(this)" title="색 변경"></button>반나절~1일<br><span class="cmp-sub">컷당, 안정적</span></td>
       </tr>
       <tr>
         <td class="cmp-row">모션 퀄리티</td>
-        <td class="warn">중<br><span class="cmp-sub">디테일 통제 어려움</span></td>
-        <td class="ok">상 (GVHMR)<br><span class="cmp-sub">추정 자체는 우수</span></td>
-        <td class="ok">상 · 편차 작음<br><span class="cmp-sub">결과 일관적</span></td>
+        <td class="warn"><button type="button" class="cmp-dot" onclick="cycleDot(this)" title="색 변경"></button>중<br><span class="cmp-sub">디테일 통제 어려움</span></td>
+        <td class="ok"><button type="button" class="cmp-dot" onclick="cycleDot(this)" title="색 변경"></button>상 (GVHMR)<br><span class="cmp-sub">추정 자체는 우수</span></td>
+        <td class="ok"><button type="button" class="cmp-dot" onclick="cycleDot(this)" title="색 변경"></button>상 · 편차 작음<br><span class="cmp-sub">결과 일관적</span></td>
       </tr>
       <tr>
         <td class="cmp-row">결과 예측성</td>
-        <td class="fail">낮음</td>
-        <td class="fail">낮음<br><span class="cmp-sub">리타게팅서 막힘</span></td>
-        <td class="ok">높음<br><span class="cmp-sub">파이프라인 검증됨</span></td>
+        <td class="fail"><button type="button" class="cmp-dot" onclick="cycleDot(this)" title="색 변경"></button>낮음</td>
+        <td class="fail"><button type="button" class="cmp-dot" onclick="cycleDot(this)" title="색 변경"></button>낮음<br><span class="cmp-sub">리타게팅서 막힘</span></td>
+        <td class="ok"><button type="button" class="cmp-dot" onclick="cycleDot(this)" title="색 변경"></button>높음<br><span class="cmp-sub">파이프라인 검증됨</span></td>
       </tr>
       <tr>
         <td class="cmp-row">준비 비용</td>
-        <td class="ok">낮음<br><span class="cmp-sub">GPU만</span></td>
-        <td class="ok">낮음<br><span class="cmp-sub">GPU + 레퍼 영상</span></td>
-        <td class="warn">높음<br><span class="cmp-sub">장비 · 공간 · 배우</span></td>
+        <td class="ok"><button type="button" class="cmp-dot" onclick="cycleDot(this)" title="색 변경"></button>낮음<br><span class="cmp-sub">GPU만</span></td>
+        <td class="ok"><button type="button" class="cmp-dot" onclick="cycleDot(this)" title="색 변경"></button>낮음<br><span class="cmp-sub">GPU + 레퍼 영상</span></td>
+        <td class="warn"><button type="button" class="cmp-dot" onclick="cycleDot(this)" title="색 변경"></button>높음<br><span class="cmp-sub">장비 · 공간 · 배우</span></td>
       </tr>
       <tr>
         <td class="cmp-row">현재 상태</td>
-        <td class="warn">미검증</td>
-        <td class="fail">실패</td>
-        <td class="ok">사용 가능</td>
+        <td class="warn"><button type="button" class="cmp-dot" onclick="cycleDot(this)" title="색 변경"></button>미검증</td>
+        <td class="fail"><button type="button" class="cmp-dot" onclick="cycleDot(this)" title="색 변경"></button>실패</td>
+        <td class="ok"><button type="button" class="cmp-dot" onclick="cycleDot(this)" title="색 변경"></button>사용 가능</td>
       </tr>
     </tbody>
   </table>
@@ -1882,8 +1891,8 @@
 <script>
 // ===== CONFIG: fill these with your Supabase project values =====
 // Leave both empty to fall back to this browser's localStorage (solo/local test).
-const SUPABASE_URL = '';        // e.g. https://xxxxxxxx.supabase.co
-const SUPABASE_ANON_KEY = '';   // project anon public key
+const SUPABASE_URL = 'https://gldbefpctwusmlxntgbg.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdsZGJlZnBjdHd1c21seG50Z2JnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MjYyOTgsImV4cCI6MjA5NTQwMjI5OH0.uMJ7CCTVD0Z0RQxMd2TjM7-XG0_GwljvQPRM1YfMids';
 const DOC_ID = 'main';
 // ================================================================
 
@@ -1990,7 +1999,7 @@ function applyState(data) {
 
 // ============ Built-in analysis tabs (auto-merge on load) ============
 const MOCAP_TAB_B64 = "PGRpdiBjbGFzcz0iYW5hbHlzaXMtdGFiIGFuLXZpb2xldCIgZGF0YS1wYW5lbD0iYW4tbW9jYXAtY29tcGFyZSIgb25jbGljaz0iYWN0aXZhdGVUYWIodGhpcykiPjxzcGFuIGNsYXNzPSJhdC1sYWJlbCIgY29udGVudGVkaXRhYmxlPSJ0cnVlIj7rqqjsuqEg67Cp7IudIOu5hOq1kDwvc3Bhbj48c3BhbiBjbGFzcz0iYXQtZGVsIiBjb250ZW50ZWRpdGFibGU9ImZhbHNlIiBvbmNsaWNrPSJkZWxldGVBbmFseXNpcyhldmVudCx0aGlzKSIgdGl0bGU9IuyCreygnCI+w5c8L3NwYW4+PC9kaXY+";
-const MOCAP_PANEL_B64 = "PGRpdiBjbGFzcz0iYW5hbHlzaXMtcGFuZWwgcmVwb3J0LWJveCBhbi12aW9sZXQiIGlkPSJhbi1tb2NhcC1jb21wYXJlIiBoaWRkZW4+CiAgPGgzIGNvbnRlbnRlZGl0YWJsZT0idHJ1ZSI+66qo7LqhIOuwqeyLnSDruYTqtZAg4oCUIOuqqOyFmCDtlITroZzrjZXshZgg66CI65SU6rmM7KeAPC9oMz4KICA8ZGl2IGNsYXNzPSJkci1zdWJ0aXRsZSIgY29udGVudGVkaXRhYmxlPSJ0cnVlIj5BSSDsg53shLEoS2ltb2RvKSAvIOu5hOuUlOyYpOKGkuuqqOyFmChQcm9tcHRITVLCt0dWSE1SKSAvIOuqqOy6oSDsiojtirgg7IS4IOqyveuhnOulvCwgMzDstIgg67aE65+JIOuLqOydvCDsnbjrrLwg66qo7IWYIDHsu7cg6riw7KSA7Jy866GcIOu5hOq1kO2VqC4gKOyCrOuCtCBQb0Mg7Iuk7LihICsg7LaU7KCVKTwvZGl2PgoKICA8dGFibGUgY2xhc3M9ImNtcC10YWJsZSIgY29udGVudGVkaXRhYmxlPSJ0cnVlIj4KICAgIDx0aGVhZD4KICAgICAgPHRyPgogICAgICAgIDx0aD7tla3rqqk8L3RoPgogICAgICAgIDx0aD5BSSDsg53shLE8YnI+PHNwYW4gY2xhc3M9ImNtcC1zdWIiPktpbW9kbzwvc3Bhbj48L3RoPgogICAgICAgIDx0aD7ruYTrlJTsmKTihpLrqqjshZg8YnI+PHNwYW4gY2xhc3M9ImNtcC1zdWIiPlByb21wdEhNUiAvIEdWSE1SPC9zcGFuPjwvdGg+CiAgICAgICAgPHRoPuuqqOy6oSDsiojtirg8YnI+PHNwYW4gY2xhc3M9ImNtcC1zdWIiPk9wdGlUcmFjayDrk7E8L3NwYW4+PC90aD4KICAgICAgPC90cj4KICAgIDwvdGhlYWQ+CiAgICA8dGJvZHk+CiAgICAgIDx0cj4KICAgICAgICA8dGQgY2xhc3M9ImNtcC1yb3ciPuuqqOyFmCDsg53shLE8YnI+7IaM7JqU7Iuc6rCEPC90ZD4KICAgICAgICA8dGQgY2xhc3M9Im9rIj7slb0gMeyLnOqwhDxicj48c3BhbiBjbGFzcz0iY21wLXN1YiI+7YWN7Iqk7Yq4IOKGkiBCVkg8L3NwYW4+PC90ZD4KICAgICAgICA8dGQgY2xhc3M9Indhcm4iPuyVvSAx7Iuc6rCEPGJyPjxzcGFuIGNsYXNzPSJjbXAtc3ViIj4zMOy0iCDsmIHsg4EsIFJUWCA0MDkwPC9zcGFuPjwvdGQ+CiAgICAgICAgPHRkIGNsYXNzPSJvayI+7LSs7JiBIDF+MuyLnOqwhDxicj48c3BhbiBjbGFzcz0iY21wLXN1YiI+7JiI7LihIOqwgOuKpTwvc3Bhbj48L3RkPgogICAgICA8L3RyPgogICAgICA8dHI+CiAgICAgICAgPHRkIGNsYXNzPSJjbXAtcm93Ij7rpqztg4DqsoztjIU8YnI+KE1ldGFIdW1hbik8L3RkPgogICAgICAgIDx0ZCBjbGFzcz0iZmFpbCI+66+47ZW06rKwPGJyPjxzcGFuIGNsYXNzPSJjbXAtc3ViIj5yZXN0IOqwrSDslb0gNjDCsDwvc3Bhbj48L3RkPgogICAgICAgIDx0ZCBjbGFzcz0iZmFpbCI+66+47ZW06rKwPGJyPjxzcGFuIGNsYXNzPSJjbXAtc3ViIj5yZXN0IOqwrSDslb0gMzDCsDwvc3Bhbj48L3RkPgogICAgICAgIDx0ZCBjbGFzcz0ib2siPu2ZleumvTxicj48c3BhbiBjbGFzcz0iY21wLXN1YiI+VC1wb3NlIOy6mOumrOu4jOugiOydtOyFmDwvc3Bhbj48L3RkPgogICAgICA8L3RyPgogICAgICA8dHI+CiAgICAgICAgPHRkIGNsYXNzPSJjbXAtcm93Ij7tlITroZzrjZXshZgg66CI65SU6rmM7KeAPGJyPuy0nSDshozsmpQ8L3RkPgogICAgICAgIDx0ZCBjbGFzcz0iZmFpbCI+7Lih7KCVIOu2iOqwgDxicj48c3BhbiBjbGFzcz0iY21wLXN1YiI+66as7YOA6rKM7YyFIO2GteqzvCDsoIQ8L3NwYW4+PC90ZD4KICAgICAgICA8dGQgY2xhc3M9ImZhaWwiPuyImOydvCsgLyDsi6TtjKg8YnI+PHNwYW4gY2xhc3M9ImNtcC1zdWIiPuu4lOugjOuNlCDqsr3roZwg66+47IiY66C0PC9zcGFuPjwvdGQ+CiAgICAgICAgPHRkIGNsYXNzPSJvayI+67CY64KY7KCIfjHsnbw8YnI+PHNwYW4gY2xhc3M9ImNtcC1zdWIiPuy7t+uLuSwg7JWI7KCV7KCBPC9zcGFuPjwvdGQ+CiAgICAgIDwvdHI+CiAgICAgIDx0cj4KICAgICAgICA8dGQgY2xhc3M9ImNtcC1yb3ciPuuqqOyFmCDtgITrpqzti7A8L3RkPgogICAgICAgIDx0ZCBjbGFzcz0id2FybiI+7KSRPGJyPjxzcGFuIGNsYXNzPSJjbXAtc3ViIj7rlJTthYzsnbwg7Ya17KCcIOyWtOugpOybgDwvc3Bhbj48L3RkPgogICAgICAgIDx0ZCBjbGFzcz0ib2siPuyDgSAoR1ZITVIpPGJyPjxzcGFuIGNsYXNzPSJjbXAtc3ViIj7stpTsoJUg7J6Q7LK064qUIOyasOyImDwvc3Bhbj48L3RkPgogICAgICAgIDx0ZCBjbGFzcz0ib2siPuyDgSDCtyDtjrjssKgg7J6R7J2MPGJyPjxzcGFuIGNsYXNzPSJjbXAtc3ViIj7qsrDqs7wg7J286rSA7KCBPC9zcGFuPjwvdGQ+CiAgICAgIDwvdHI+CiAgICAgIDx0cj4KICAgICAgICA8dGQgY2xhc3M9ImNtcC1yb3ciPuqysOqzvCDsmIjsuKHshLE8L3RkPgogICAgICAgIDx0ZCBjbGFzcz0iZmFpbCI+64Ku7J2MPC90ZD4KICAgICAgICA8dGQgY2xhc3M9ImZhaWwiPuuCruydjDxicj48c3BhbiBjbGFzcz0iY21wLXN1YiI+66as7YOA6rKM7YyF7IScIOunie2emDwvc3Bhbj48L3RkPgogICAgICAgIDx0ZCBjbGFzcz0ib2siPuuGkuydjDxicj48c3BhbiBjbGFzcz0iY21wLXN1YiI+7YyM7J207ZSE65287J24IOqygOymneuQqDwvc3Bhbj48L3RkPgogICAgICA8L3RyPgogICAgICA8dHI+CiAgICAgICAgPHRkIGNsYXNzPSJjbXAtcm93Ij7spIDruYQg67mE7JqpPC90ZD4KICAgICAgICA8dGQgY2xhc3M9Im9rIj7rgq7snYw8YnI+PHNwYW4gY2xhc3M9ImNtcC1zdWIiPkdQVeunjDwvc3Bhbj48L3RkPgogICAgICAgIDx0ZCBjbGFzcz0ib2siPuuCruydjDxicj48c3BhbiBjbGFzcz0iY21wLXN1YiI+R1BVICsg66CI7Y28IOyYgeyDgTwvc3Bhbj48L3RkPgogICAgICAgIDx0ZCBjbGFzcz0id2FybiI+64aS7J2MPGJyPjxzcGFuIGNsYXNzPSJjbXAtc3ViIj7snqXruYQgwrcg6rO16rCEIMK3IOuwsOyasDwvc3Bhbj48L3RkPgogICAgICA8L3RyPgogICAgICA8dHI+CiAgICAgICAgPHRkIGNsYXNzPSJjbXAtcm93Ij7tmITsnqwg7IOB7YOcPC90ZD4KICAgICAgICA8dGQgY2xhc3M9Indhcm4iPuuvuOqygOymnTwvdGQ+CiAgICAgICAgPHRkIGNsYXNzPSJmYWlsIj7si6TtjKg8L3RkPgogICAgICAgIDx0ZCBjbGFzcz0ib2siPuyCrOyaqSDqsIDriqU8L3RkPgogICAgICA8L3RyPgogICAgPC90Ym9keT4KICA8L3RhYmxlPgoKICA8ZGl2IGNsYXNzPSJjYWxsb3V0IiBjb250ZW50ZWRpdGFibGU9InRydWUiPgogICAgPHN0cm9uZz7qsrDroaA6PC9zdHJvbmc+IOumrO2DgOqyjO2MheydtCDtlbTqsrDrkJjsp4Ag7JWK64qUIO2VnCwg7JWE7KeB6rmM7KeA64qUIOyKiO2KuOulvCDsnoXqs6Ag7Lqh7LKY7ZWY64qUIOuwqeyLneydtCDqsIDsnqUg64Kr64ukLiBBSSDsg53shLHCt+u5hOuUlOyYpOKGkuuqqOyFmOydgCDrqqjshZgg7LaU7KCVIO2SiOyniOydgCDstqnrtoTtlZjrgpgsIE1ldGFIdW1hbiDrpqztg4DqsoztjIUocmVzdCDqsK0gMzB+NjDCsCnsnbQg6rO17Ya1IOu4lOuhnOy7pOydtOupsCDsnbTqsowg7ZKA66as6riwIOyghOq5jOyngOuKlCDtlITroZzrjZXshZgg66CI65SU6rmM7KeA7J2YIOy0nSDshozsmpTsi5zqsITsnYQg7JiI7Lih7ZWgIOyImCDsl4bri6QuIOydtCDqsr3roZzqsIAg7ZmV67O065CY66m0IOyerO2PieqwgO2VnOuLpC4KICA8L2Rpdj4KPC9kaXY+";
+const MOCAP_PANEL_B64 = "PGRpdiBjbGFzcz0iYW5hbHlzaXMtcGFuZWwgcmVwb3J0LWJveCBhbi12aW9sZXQiIGlkPSJhbi1tb2NhcC1jb21wYXJlIiBoaWRkZW4+CiAgPGgzIGNvbnRlbnRlZGl0YWJsZT0idHJ1ZSI+66qo7LqhIOuwqeyLnSDruYTqtZAg4oCUIOuqqOyFmCDtlITroZzrjZXshZgg66CI65SU6rmM7KeAPC9oMz4KICA8ZGl2IGNsYXNzPSJkci1zdWJ0aXRsZSIgY29udGVudGVkaXRhYmxlPSJ0cnVlIj5BSSDsg53shLEoS2ltb2RvKSAvIOu5hOuUlOyYpOKGkuuqqOyFmChQcm9tcHRITVLCt0dWSE1SKSAvIOuqqOy6oSDsiojtirgg7IS4IOqyveuhnOulvCwgMzDstIgg67aE65+JIOuLqOydvCDsnbjrrLwg66qo7IWYIDHsu7cg6riw7KSA7Jy866GcIOu5hOq1kO2VqC4gKOyCrOuCtCBQb0Mg7Iuk7LihICsg7LaU7KCVKTwvZGl2PgoKICA8dGFibGUgY2xhc3M9ImNtcC10YWJsZSIgY29udGVudGVkaXRhYmxlPSJ0cnVlIj4KICAgIDx0aGVhZD4KICAgICAgPHRyPgogICAgICAgIDx0aD7tla3rqqk8L3RoPgogICAgICAgIDx0aD5BSSDsg53shLE8YnI+PHNwYW4gY2xhc3M9ImNtcC1zdWIiPktpbW9kbzwvc3Bhbj48L3RoPgogICAgICAgIDx0aD7ruYTrlJTsmKTihpLrqqjshZg8YnI+PHNwYW4gY2xhc3M9ImNtcC1zdWIiPlByb21wdEhNUiAvIEdWSE1SPC9zcGFuPjwvdGg+CiAgICAgICAgPHRoPuuqqOy6oSDsiojtirg8YnI+PHNwYW4gY2xhc3M9ImNtcC1zdWIiPk9wdGlUcmFjayDrk7E8L3NwYW4+PC90aD4KICAgICAgPC90cj4KICAgIDwvdGhlYWQ+CiAgICA8dGJvZHk+CiAgICAgIDx0cj4KICAgICAgICA8dGQgY2xhc3M9ImNtcC1yb3ciPuuqqOyFmCDsg53shLE8YnI+7IaM7JqU7Iuc6rCEPC90ZD4KICAgICAgICA8dGQgY2xhc3M9Im9rIj48YnV0dG9uIHR5cGU9ImJ1dHRvbiIgY2xhc3M9ImNtcC1kb3QiIG9uY2xpY2s9ImN5Y2xlRG90KHRoaXMpIiB0aXRsZT0i7IOJIOuzgOqyvSI+PC9idXR0b24+7JW9IDHsi5zqsIQ8YnI+PHNwYW4gY2xhc3M9ImNtcC1zdWIiPu2FjeyKpO2KuCDihpIgQlZIPC9zcGFuPjwvdGQ+CiAgICAgICAgPHRkIGNsYXNzPSJ3YXJuIj48YnV0dG9uIHR5cGU9ImJ1dHRvbiIgY2xhc3M9ImNtcC1kb3QiIG9uY2xpY2s9ImN5Y2xlRG90KHRoaXMpIiB0aXRsZT0i7IOJIOuzgOqyvSI+PC9idXR0b24+7JW9IDHsi5zqsIQ8YnI+PHNwYW4gY2xhc3M9ImNtcC1zdWIiPjMw7LSIIOyYgeyDgSwgUlRYIDQwOTA8L3NwYW4+PC90ZD4KICAgICAgICA8dGQgY2xhc3M9Im9rIj48YnV0dG9uIHR5cGU9ImJ1dHRvbiIgY2xhc3M9ImNtcC1kb3QiIG9uY2xpY2s9ImN5Y2xlRG90KHRoaXMpIiB0aXRsZT0i7IOJIOuzgOqyvSI+PC9idXR0b24+7LSs7JiBIDF+MuyLnOqwhDxicj48c3BhbiBjbGFzcz0iY21wLXN1YiI+7JiI7LihIOqwgOuKpTwvc3Bhbj48L3RkPgogICAgICA8L3RyPgogICAgICA8dHI+CiAgICAgICAgPHRkIGNsYXNzPSJjbXAtcm93Ij7rpqztg4DqsoztjIU8YnI+KE1ldGFIdW1hbik8L3RkPgogICAgICAgIDx0ZCBjbGFzcz0iZmFpbCI+PGJ1dHRvbiB0eXBlPSJidXR0b24iIGNsYXNzPSJjbXAtZG90IiBvbmNsaWNrPSJjeWNsZURvdCh0aGlzKSIgdGl0bGU9IuyDiSDrs4Dqsr0iPjwvYnV0dG9uPuuvuO2VtOqysDxicj48c3BhbiBjbGFzcz0iY21wLXN1YiI+cmVzdCDqsK0g7JW9IDYwwrA8L3NwYW4+PC90ZD4KICAgICAgICA8dGQgY2xhc3M9ImZhaWwiPjxidXR0b24gdHlwZT0iYnV0dG9uIiBjbGFzcz0iY21wLWRvdCIgb25jbGljaz0iY3ljbGVEb3QodGhpcykiIHRpdGxlPSLsg4kg67OA6rK9Ij48L2J1dHRvbj7rr7jtlbTqsrA8YnI+PHNwYW4gY2xhc3M9ImNtcC1zdWIiPnJlc3Qg6rCtIOyVvSAzMMKwPC9zcGFuPjwvdGQ+CiAgICAgICAgPHRkIGNsYXNzPSJvayI+PGJ1dHRvbiB0eXBlPSJidXR0b24iIGNsYXNzPSJjbXAtZG90IiBvbmNsaWNrPSJjeWNsZURvdCh0aGlzKSIgdGl0bGU9IuyDiSDrs4Dqsr0iPjwvYnV0dG9uPu2ZleumvTxicj48c3BhbiBjbGFzcz0iY21wLXN1YiI+VC1wb3NlIOy6mOumrOu4jOugiOydtOyFmDwvc3Bhbj48L3RkPgogICAgICA8L3RyPgogICAgICA8dHI+CiAgICAgICAgPHRkIGNsYXNzPSJjbXAtcm93Ij7tlITroZzrjZXshZgg66CI65SU6rmM7KeAPGJyPuy0nSDshozsmpQ8L3RkPgogICAgICAgIDx0ZCBjbGFzcz0iZmFpbCI+PGJ1dHRvbiB0eXBlPSJidXR0b24iIGNsYXNzPSJjbXAtZG90IiBvbmNsaWNrPSJjeWNsZURvdCh0aGlzKSIgdGl0bGU9IuyDiSDrs4Dqsr0iPjwvYnV0dG9uPuy4oeyglSDrtojqsIA8YnI+PHNwYW4gY2xhc3M9ImNtcC1zdWIiPuumrO2DgOqyjO2MhSDthrXqs7wg7KCEPC9zcGFuPjwvdGQ+CiAgICAgICAgPHRkIGNsYXNzPSJmYWlsIj48YnV0dG9uIHR5cGU9ImJ1dHRvbiIgY2xhc3M9ImNtcC1kb3QiIG9uY2xpY2s9ImN5Y2xlRG90KHRoaXMpIiB0aXRsZT0i7IOJIOuzgOqyvSI+PC9idXR0b24+7IiY7J28KyAvIOyLpO2MqDxicj48c3BhbiBjbGFzcz0iY21wLXN1YiI+67iU66CM642UIOqyveuhnCDrr7jsiJjroLQ8L3NwYW4+PC90ZD4KICAgICAgICA8dGQgY2xhc3M9Im9rIj48YnV0dG9uIHR5cGU9ImJ1dHRvbiIgY2xhc3M9ImNtcC1kb3QiIG9uY2xpY2s9ImN5Y2xlRG90KHRoaXMpIiB0aXRsZT0i7IOJIOuzgOqyvSI+PC9idXR0b24+67CY64KY7KCIfjHsnbw8YnI+PHNwYW4gY2xhc3M9ImNtcC1zdWIiPuy7t+uLuSwg7JWI7KCV7KCBPC9zcGFuPjwvdGQ+CiAgICAgIDwvdHI+CiAgICAgIDx0cj4KICAgICAgICA8dGQgY2xhc3M9ImNtcC1yb3ciPuuqqOyFmCDtgITrpqzti7A8L3RkPgogICAgICAgIDx0ZCBjbGFzcz0id2FybiI+PGJ1dHRvbiB0eXBlPSJidXR0b24iIGNsYXNzPSJjbXAtZG90IiBvbmNsaWNrPSJjeWNsZURvdCh0aGlzKSIgdGl0bGU9IuyDiSDrs4Dqsr0iPjwvYnV0dG9uPuykkTxicj48c3BhbiBjbGFzcz0iY21wLXN1YiI+65SU7YWM7J28IO2GteygnCDslrTroKTsm4A8L3NwYW4+PC90ZD4KICAgICAgICA8dGQgY2xhc3M9Im9rIj48YnV0dG9uIHR5cGU9ImJ1dHRvbiIgY2xhc3M9ImNtcC1kb3QiIG9uY2xpY2s9ImN5Y2xlRG90KHRoaXMpIiB0aXRsZT0i7IOJIOuzgOqyvSI+PC9idXR0b24+7IOBIChHVkhNUik8YnI+PHNwYW4gY2xhc3M9ImNtcC1zdWIiPuy2lOyglSDsnpDssrTripQg7Jqw7IiYPC9zcGFuPjwvdGQ+CiAgICAgICAgPHRkIGNsYXNzPSJvayI+PGJ1dHRvbiB0eXBlPSJidXR0b24iIGNsYXNzPSJjbXAtZG90IiBvbmNsaWNrPSJjeWNsZURvdCh0aGlzKSIgdGl0bGU9IuyDiSDrs4Dqsr0iPjwvYnV0dG9uPuyDgSDCtyDtjrjssKgg7J6R7J2MPGJyPjxzcGFuIGNsYXNzPSJjbXAtc3ViIj7qsrDqs7wg7J286rSA7KCBPC9zcGFuPjwvdGQ+CiAgICAgIDwvdHI+CiAgICAgIDx0cj4KICAgICAgICA8dGQgY2xhc3M9ImNtcC1yb3ciPuqysOqzvCDsmIjsuKHshLE8L3RkPgogICAgICAgIDx0ZCBjbGFzcz0iZmFpbCI+PGJ1dHRvbiB0eXBlPSJidXR0b24iIGNsYXNzPSJjbXAtZG90IiBvbmNsaWNrPSJjeWNsZURvdCh0aGlzKSIgdGl0bGU9IuyDiSDrs4Dqsr0iPjwvYnV0dG9uPuuCruydjDwvdGQ+CiAgICAgICAgPHRkIGNsYXNzPSJmYWlsIj48YnV0dG9uIHR5cGU9ImJ1dHRvbiIgY2xhc3M9ImNtcC1kb3QiIG9uY2xpY2s9ImN5Y2xlRG90KHRoaXMpIiB0aXRsZT0i7IOJIOuzgOqyvSI+PC9idXR0b24+64Ku7J2MPGJyPjxzcGFuIGNsYXNzPSJjbXAtc3ViIj7rpqztg4DqsoztjIXshJwg66eJ7Z6YPC9zcGFuPjwvdGQ+CiAgICAgICAgPHRkIGNsYXNzPSJvayI+PGJ1dHRvbiB0eXBlPSJidXR0b24iIGNsYXNzPSJjbXAtZG90IiBvbmNsaWNrPSJjeWNsZURvdCh0aGlzKSIgdGl0bGU9IuyDiSDrs4Dqsr0iPjwvYnV0dG9uPuuGkuydjDxicj48c3BhbiBjbGFzcz0iY21wLXN1YiI+7YyM7J207ZSE65287J24IOqygOymneuQqDwvc3Bhbj48L3RkPgogICAgICA8L3RyPgogICAgICA8dHI+CiAgICAgICAgPHRkIGNsYXNzPSJjbXAtcm93Ij7spIDruYQg67mE7JqpPC90ZD4KICAgICAgICA8dGQgY2xhc3M9Im9rIj48YnV0dG9uIHR5cGU9ImJ1dHRvbiIgY2xhc3M9ImNtcC1kb3QiIG9uY2xpY2s9ImN5Y2xlRG90KHRoaXMpIiB0aXRsZT0i7IOJIOuzgOqyvSI+PC9idXR0b24+64Ku7J2MPGJyPjxzcGFuIGNsYXNzPSJjbXAtc3ViIj5HUFXrp4w8L3NwYW4+PC90ZD4KICAgICAgICA8dGQgY2xhc3M9Im9rIj48YnV0dG9uIHR5cGU9ImJ1dHRvbiIgY2xhc3M9ImNtcC1kb3QiIG9uY2xpY2s9ImN5Y2xlRG90KHRoaXMpIiB0aXRsZT0i7IOJIOuzgOqyvSI+PC9idXR0b24+64Ku7J2MPGJyPjxzcGFuIGNsYXNzPSJjbXAtc3ViIj5HUFUgKyDroIjtjbwg7JiB7IOBPC9zcGFuPjwvdGQ+CiAgICAgICAgPHRkIGNsYXNzPSJ3YXJuIj48YnV0dG9uIHR5cGU9ImJ1dHRvbiIgY2xhc3M9ImNtcC1kb3QiIG9uY2xpY2s9ImN5Y2xlRG90KHRoaXMpIiB0aXRsZT0i7IOJIOuzgOqyvSI+PC9idXR0b24+64aS7J2MPGJyPjxzcGFuIGNsYXNzPSJjbXAtc3ViIj7snqXruYQgwrcg6rO16rCEIMK3IOuwsOyasDwvc3Bhbj48L3RkPgogICAgICA8L3RyPgogICAgICA8dHI+CiAgICAgICAgPHRkIGNsYXNzPSJjbXAtcm93Ij7tmITsnqwg7IOB7YOcPC90ZD4KICAgICAgICA8dGQgY2xhc3M9Indhcm4iPjxidXR0b24gdHlwZT0iYnV0dG9uIiBjbGFzcz0iY21wLWRvdCIgb25jbGljaz0iY3ljbGVEb3QodGhpcykiIHRpdGxlPSLsg4kg67OA6rK9Ij48L2J1dHRvbj7rr7jqsoDspp08L3RkPgogICAgICAgIDx0ZCBjbGFzcz0iZmFpbCI+PGJ1dHRvbiB0eXBlPSJidXR0b24iIGNsYXNzPSJjbXAtZG90IiBvbmNsaWNrPSJjeWNsZURvdCh0aGlzKSIgdGl0bGU9IuyDiSDrs4Dqsr0iPjwvYnV0dG9uPuyLpO2MqDwvdGQ+CiAgICAgICAgPHRkIGNsYXNzPSJvayI+PGJ1dHRvbiB0eXBlPSJidXR0b24iIGNsYXNzPSJjbXAtZG90IiBvbmNsaWNrPSJjeWNsZURvdCh0aGlzKSIgdGl0bGU9IuyDiSDrs4Dqsr0iPjwvYnV0dG9uPuyCrOyaqSDqsIDriqU8L3RkPgogICAgICA8L3RyPgogICAgPC90Ym9keT4KICA8L3RhYmxlPgoKICA8ZGl2IGNsYXNzPSJjYWxsb3V0IiBjb250ZW50ZWRpdGFibGU9InRydWUiPgogICAgPHN0cm9uZz7qsrDroaA6PC9zdHJvbmc+IOumrO2DgOqyjO2MheydtCDtlbTqsrDrkJjsp4Ag7JWK64qUIO2VnCwg7JWE7KeB6rmM7KeA64qUIOyKiO2KuOulvCDsnoXqs6Ag7Lqh7LKY7ZWY64qUIOuwqeyLneydtCDqsIDsnqUg64Kr64ukLiBBSSDsg53shLHCt+u5hOuUlOyYpOKGkuuqqOyFmOydgCDrqqjshZgg7LaU7KCVIO2SiOyniOydgCDstqnrtoTtlZjrgpgsIE1ldGFIdW1hbiDrpqztg4DqsoztjIUocmVzdCDqsK0gMzB+NjDCsCnsnbQg6rO17Ya1IOu4lOuhnOy7pOydtOupsCDsnbTqsowg7ZKA66as6riwIOyghOq5jOyngOuKlCDtlITroZzrjZXshZgg66CI65SU6rmM7KeA7J2YIOy0nSDshozsmpTsi5zqsITsnYQg7JiI7Lih7ZWgIOyImCDsl4bri6QuIOydtCDqsr3roZzqsIAg7ZmV67O065CY66m0IOyerO2PieqwgO2VnOuLpC4KICA8L2Rpdj4KPC9kaXY+";
 function b64ToHtml(b64) {
   try { return decodeURIComponent(escape(window.atob(b64))); }
   catch (e) { return window.atob(b64); }
@@ -2024,6 +2033,7 @@ function normalizeAnalysis() {
   tabs.forEach(t => panelIdForTab(t, wrap));
   let active = wrap.querySelector('.analysis-tab.active') || tabs[0];
   activateTabSilent(active, wrap);
+  try { decorateCmpDots(); } catch (_) {}
 }
 function activateTabSilent(tab, wrap) {
   const pid = panelIdForTab(tab, wrap);
@@ -2302,6 +2312,28 @@ function addNode(btn, branchClass) {
 }
 
 // ============ Analysis tabs ============
+const CMP_STATES = ['none', 'ok', 'warn', 'fail'];
+function cycleDot(btn) {
+  if (!editing) return;
+  const td = btn.closest('td');
+  if (!td) return;
+  let cur = 'none';
+  for (const s of CMP_STATES) if (td.classList.contains(s)) cur = s;
+  const next = CMP_STATES[(CMP_STATES.indexOf(cur) + 1) % CMP_STATES.length];
+  CMP_STATES.forEach(s => td.classList.remove(s));
+  td.classList.add(next);
+  debouncedSave();
+}
+function decorateCmpDots() {
+  document.querySelectorAll('.cmp-table tbody td').forEach(td => {
+    if (td.classList.contains('cmp-row')) return; // first column = label, no dot
+    if (td.querySelector(':scope > .cmp-dot')) return;
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'cmp-dot'; b.title = '색 변경';
+    b.setAttribute('onclick', 'cycleDot(this)');
+    td.insertBefore(b, td.firstChild);
+  });
+}
 function panelIdForTab(tab, wrap) {
   let pid = tab.getAttribute('data-panel');
   if (pid && wrap.querySelector('#' + pid)) return pid;
@@ -2421,6 +2453,7 @@ function rewireEvents() {
   document.querySelectorAll('.branch').forEach(b => { try { wireBranch(b); } catch (_) {} });
   document.querySelectorAll('.media-gallery').forEach(g => { try { wireGallery(g); } catch (_) {} });
   try { decorateLines(); } catch (_) {}
+  try { decorateCmpDots(); } catch (_) {}
 }
 document.addEventListener('input', e => {
   if (e.target.isContentEditable || e.target.closest('[contenteditable=true]')) debouncedSave();
