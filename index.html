@@ -6,318 +6,425 @@
 <meta name="googlebot" content="noindex, nofollow">
 <title>AI SOTA Mind Map · VP-Studio R&D</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Caveat:wght@400;600&family=Pretendard:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<!-- Pretendard: reliable clean Korean gothic, used as the web fallback -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
+  /* Prefer a locally installed KoPub Dotum, then load it from CDN if present.
+     If neither resolves, the font stack falls back to Pretendard. */
+  @font-face {
+    font-family: "KoPub Dotum";
+    src: local("KoPubWorld Dotum Medium"), local("KoPubWorldDotum-Medium"),
+         local("KoPub Dotum Medium"), local("KoPubDotumMedium"),
+         url("https://cdn.jsdelivr.net/gh/fonts-archive/KoPubWorldDotumMedium/KoPubWorldDotumMedium.woff2") format("woff2");
+    font-weight: 400 500;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "KoPub Dotum";
+    src: local("KoPubWorld Dotum Bold"), local("KoPubWorldDotum-Bold"),
+         local("KoPub Dotum Bold"), local("KoPubDotumBold"),
+         url("https://cdn.jsdelivr.net/gh/fonts-archive/KoPubWorldDotumBold/KoPubWorldDotumBold.woff2") format("woff2");
+    font-weight: 600 800;
+    font-display: swap;
+  }
+
   :root {
-    --board: #f7f3e8;
-    --board-line: #e2dccb;
-    --ink: #2b2b2b;
-    --ink-dim: #6b6b6b;
-    --erase: #ff6b6b;
-    --erase-bg: #fff0f0;
-    --gauss: #4dabf7;
-    --gauss-bg: #e7f5ff;
-    --gen3d: #9775fa;
-    --gen3d-bg: #f3f0ff;
-    --gold: #f59f00;
-    --gold-bg: #fff9db;
-    --green: #51cf66;
-    --orange: #ff922b;
-    --red: #fa5252;
+    --font: "KoPub Dotum", "Pretendard", "Apple SD Gothic Neo",
+            "Noto Sans KR", system-ui, sans-serif;
+    --mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+
+    --bg: #f3f4f6;
+    --surface: #ffffff;
+    --surface-2: #fafbfc;
+    --border: #e5e7eb;
+    --border-strong: #d4d7dd;
+
+    --ink: #1f2328;
+    --ink-dim: #5b616e;
+    --ink-faint: #9aa0aa;
+
+    --erase: #e03131;   --erase-soft: #fff5f5;
+    --gauss: #1c7ed6;   --gauss-soft: #e7f5ff;
+    --gen3d: #6741d9;   --gen3d-soft: #f3f0ff;
+    --motion:#0c8599;   --motion-soft:#e3fafc;
+    --gold:  #f08c00;   --gold-soft:  #fff9db;
+    --green: #2f9e44;
+    --orange:#e8590c;
+    --red:   #e03131;
+
+    --radius: 14px;
+    --radius-sm: 10px;
+    --radius-xs: 7px;
+    --shadow: 0 1px 2px rgba(16,24,40,.04), 0 3px 10px rgba(16,24,40,.05);
+    --shadow-hover: 0 2px 4px rgba(16,24,40,.06), 0 10px 26px rgba(16,24,40,.09);
   }
 
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
   body {
-    background: var(--board);
-    background-image:
-      linear-gradient(rgba(0,0,0,0.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,0,0,0.025) 1px, transparent 1px);
-    background-size: 30px 30px;
+    background: var(--bg);
     color: var(--ink);
-    font-family: "Pretendard", "Gaegu", "Noto Sans KR", sans-serif;
+    font-family: var(--font);
+    font-size: 15px;
+    line-height: 1.6;
+    letter-spacing: -0.01em;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
     overflow-x: auto;
     min-height: 100vh;
   }
 
-  /* Toolbar */
+  /* ---------- Toolbar ---------- */
   .toolbar {
     position: fixed;
-    top: 12px; right: 12px;
+    top: 16px; right: 16px;
     z-index: 100;
-    background: white;
-    padding: 8px 12px;
-    border-radius: 999px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    background: rgba(255,255,255,.85);
+    backdrop-filter: saturate(160%) blur(8px);
+    -webkit-backdrop-filter: saturate(160%) blur(8px);
+    padding: 7px 9px;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
     display: flex;
-    gap: 8px;
-    border: 1px solid var(--board-line);
+    align-items: center;
+    gap: 6px;
+    border: 1px solid var(--border);
   }
   .toolbar button {
-    background: white;
-    border: 1px solid var(--board-line);
-    border-radius: 999px;
-    padding: 6px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 13px;
     font-size: 13px;
+    font-weight: 500;
     cursor: pointer;
     font-family: inherit;
     color: var(--ink);
-    transition: all 0.15s;
+    transition: background .15s, border-color .15s, transform .1s;
   }
   .toolbar button:hover {
-    background: var(--gold-bg);
-    border-color: var(--gold);
+    background: var(--surface-2);
+    border-color: var(--border-strong);
   }
+  .toolbar button:active { transform: translateY(1px); }
   .toolbar .save-status {
-    font-size: 11px; color: var(--ink-dim);
+    font-size: 12px; color: var(--ink-faint);
     align-self: center;
-    margin-right: 4px;
+    padding: 0 8px 0 4px;
+    font-variant-numeric: tabular-nums;
   }
   .toolbar .save-status.saved { color: var(--green); }
 
-  /* Header */
+  /* ---------- Header ---------- */
   header {
-    padding: 32px 32px 0;
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 48px 32px 0;
     text-align: center;
   }
   h1 {
-    font-family: "Caveat", "Gaegu", cursive;
-    font-size: 48px;
+    font-family: var(--font);
+    font-size: 32px;
+    line-height: 1.2;
     margin: 0;
     color: var(--ink);
-    font-weight: 700;
+    font-weight: 800;
+    letter-spacing: -0.025em;
   }
   .subtitle {
-    font-family: "Gaegu", "Caveat", cursive;
-    font-size: 18px;
+    font-family: var(--font);
+    font-size: 14px;
     color: var(--ink-dim);
-    margin-top: 4px;
+    margin-top: 10px;
+    font-weight: 400;
+    line-height: 1.5;
   }
   .legend {
-    margin-top: 16px;
+    margin-top: 22px;
     display: flex;
     justify-content: center;
-    gap: 16px;
+    gap: 10px;
     flex-wrap: wrap;
     font-size: 13px;
   }
   .legend-item {
-    display: inline-flex; align-items: center; gap: 6px;
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 5px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--ink-dim);
+    font-weight: 500;
   }
   .legend-dot {
-    width: 14px; height: 14px; border-radius: 4px;
+    width: 11px; height: 11px; border-radius: 3px;
     border: 1.5px solid currentColor;
   }
-  .legend-dot.erase { background: var(--erase-bg); color: var(--erase); }
-  .legend-dot.gauss { background: var(--gauss-bg); color: var(--gauss); }
-  .legend-dot.gen3d { background: var(--gen3d-bg); color: var(--gen3d); }
-  .legend-dot.sota { background: var(--gold-bg); color: var(--gold); }
+  .legend-dot.erase  { background: var(--erase-soft);  color: var(--erase); }
+  .legend-dot.gauss  { background: var(--gauss-soft);  color: var(--gauss); }
+  .legend-dot.gen3d  { background: var(--gen3d-soft);  color: var(--gen3d); }
+  .legend-dot.motion { background: var(--motion-soft); color: var(--motion); }
+  .legend-dot.sota   { background: var(--gold-soft);   color: var(--gold); }
 
-  /* Map container */
+  /* ---------- Map container ---------- */
   .map-wrap {
-    padding: 40px 32px 80px;
-    min-width: 1400px;
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 36px 32px 80px;
+    min-width: 1280px;
     position: relative;
   }
   .map {
     position: relative;
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 32px;
-    margin-top: 60px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 22px;
+    margin-top: 8px;
+    align-items: start;
   }
 
-  /* Branch / column */
+  /* ---------- Branch / column ---------- */
   .branch {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 20px;
+    align-items: stretch;
+    gap: 16px;
+    animation: rise .5s cubic-bezier(.2,.7,.3,1) both;
   }
-  .branch-head {
-    font-family: "Caveat", cursive;
-    font-size: 32px;
-    font-weight: 700;
-    padding: 10px 24px;
-    border-radius: 16px;
-    border: 2.5px solid;
-    background: white;
-    text-align: center;
-    box-shadow: 3px 3px 0 rgba(0,0,0,0.06);
-    cursor: text;
-    transition: transform 0.15s;
-    position: relative;
-  }
-  .branch-head:hover { transform: translateY(-2px); }
-  .branch-head .emoji { margin-right: 6px; }
-  .branch.erase .branch-head { color: var(--erase); border-color: var(--erase); background: var(--erase-bg); }
-  .branch.gauss .branch-head { color: var(--gauss); border-color: var(--gauss); background: var(--gauss-bg); }
-  .branch.gen3d .branch-head { color: var(--gen3d); border-color: var(--gen3d); background: var(--gen3d-bg); }
+  .branch:nth-child(2) { animation-delay: .06s; }
+  .branch:nth-child(3) { animation-delay: .12s; }
+  .branch:nth-child(4) { animation-delay: .18s; }
 
-  /* Node */
+  .branch-head {
+    font-family: var(--font);
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    padding: 13px 18px 13px 22px;
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    text-align: left;
+    box-shadow: var(--shadow);
+    cursor: text;
+    transition: box-shadow .15s;
+    position: relative;
+  }
+  .branch-head::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 9px; bottom: 9px;
+    width: 4px;
+    border-radius: 999px;
+    background: var(--border-strong);
+  }
+  .branch-head:hover { box-shadow: var(--shadow-hover); }
+  .branch.erase  .branch-head::before { background: var(--erase); }
+  .branch.gauss  .branch-head::before { background: var(--gauss); }
+  .branch.gen3d  .branch-head::before { background: var(--gen3d); }
+  .branch.motion .branch-head::before { background: var(--motion); }
+  .branch.erase  .branch-head { color: var(--erase); }
+  .branch.gauss  .branch-head { color: var(--gauss); }
+  .branch.gen3d  .branch-head { color: var(--gen3d); }
+  .branch.motion .branch-head { color: var(--motion); }
+  .branch-head .kicker {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--ink-faint);
+    margin-top: 3px;
+  }
+
+  /* ---------- Node ---------- */
   .node {
-    background: white;
-    border: 2px solid var(--board-line);
-    border-radius: 12px;
-    padding: 14px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
     width: 100%;
-    max-width: 380px;
-    box-shadow: 2px 2px 0 rgba(0,0,0,0.04);
+    box-shadow: var(--shadow);
     position: relative;
     cursor: text;
-    transition: transform 0.15s, box-shadow 0.15s;
+    transition: transform .15s, box-shadow .15s, border-color .15s;
   }
   .node:hover {
-    transform: translateY(-1px);
-    box-shadow: 3px 4px 0 rgba(0,0,0,0.06);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+    border-color: var(--border-strong);
   }
   .node.sota {
-    border-color: var(--gold);
-    background: var(--gold-bg);
-    box-shadow: 3px 3px 0 rgba(245,159,0,0.2);
+    border-color: rgba(240,140,0,.45);
+    background: linear-gradient(180deg, var(--gold-soft), var(--surface) 60%);
   }
   .node.sota::before {
     content: "★ SOTA";
     position: absolute;
-    top: -10px; left: 12px;
+    top: -10px; left: 16px;
     background: var(--gold);
     color: white;
-    font-size: 11px;
+    font-size: 10.5px;
     font-weight: 700;
-    padding: 2px 10px;
+    padding: 3px 10px;
     border-radius: 999px;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.04em;
+    box-shadow: 0 2px 6px rgba(240,140,0,.35);
+  }
+  .node.partial {
+    border-color: rgba(232,89,12,.4);
+  }
+  .node.partial::before {
+    content: "△ 제한적";
+    position: absolute;
+    top: -10px; left: 16px;
+    background: var(--orange);
+    color: white;
+    font-size: 10.5px; font-weight: 700;
+    padding: 3px 10px; border-radius: 999px;
   }
   .node.unverified {
     border-style: dashed;
-    background: white;
-    opacity: 0.85;
+    background: var(--surface-2);
   }
   .node.unverified::before {
-    content: "? 미실험";
+    content: "○ 미검증";
     position: absolute;
-    top: -10px; left: 12px;
-    background: var(--ink-dim);
+    top: -10px; left: 16px;
+    background: var(--ink-faint);
     color: white;
-    font-size: 11px;
+    font-size: 10.5px;
     font-weight: 700;
-    padding: 2px 10px;
+    padding: 3px 10px;
     border-radius: 999px;
   }
   .node.failed {
-    border-color: var(--red);
-    background: #fff5f5;
+    border-color: rgba(224,49,49,.4);
+    background: linear-gradient(180deg, var(--erase-soft), var(--surface) 60%);
   }
   .node.failed::before {
     content: "× 실패";
     position: absolute;
-    top: -10px; left: 12px;
+    top: -10px; left: 16px;
     background: var(--red);
     color: white;
-    font-size: 11px; font-weight: 700;
-    padding: 2px 10px; border-radius: 999px;
+    font-size: 10.5px; font-weight: 700;
+    padding: 3px 10px; border-radius: 999px;
+    box-shadow: 0 2px 6px rgba(224,49,49,.3);
   }
 
   .node-title {
-    font-family: "Caveat", "Gaegu", cursive;
-    font-size: 22px;
-    font-weight: 700;
-    margin-bottom: 4px;
-    line-height: 1.2;
+    font-family: var(--font);
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 3px;
+    line-height: 1.3;
+    color: var(--ink);
   }
   .node-title a {
     color: inherit;
     text-decoration: none;
-    border-bottom: 1px dashed currentColor;
+    border-bottom: 1px solid var(--border-strong);
+    transition: border-color .15s;
   }
+  .node-title a:hover { border-bottom-color: currentColor; }
   .node-tagline {
-    font-size: 12px;
+    font-size: 12.5px;
     color: var(--ink-dim);
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+    line-height: 1.45;
   }
 
-  /* Pros / Cons sub-nodes */
+  /* ---------- Pros / Cons sub-nodes ---------- */
   .sub-list {
     list-style: none;
     padding: 0;
-    margin: 0 0 8px;
-    font-size: 13px;
+    margin: 0 0 10px;
+    font-size: 13.5px;
   }
   .sub-list li {
-    padding: 3px 0 3px 18px;
+    padding: 4px 0 4px 22px;
     position: relative;
-    line-height: 1.4;
+    line-height: 1.5;
     cursor: text;
+    color: var(--ink);
   }
   .sub-list li.plus::before {
-    content: "＋";
+    content: "+";
     position: absolute;
-    left: 0; color: var(--green); font-weight: 700;
+    left: 4px; top: 4px; color: var(--green); font-weight: 800;
   }
   .sub-list li.minus::before {
     content: "−";
     position: absolute;
-    left: 0; color: var(--red); font-weight: 700;
+    left: 4px; top: 4px; color: var(--red); font-weight: 800;
   }
   .sub-list li.warn::before {
-    content: "⚠";
+    content: "!";
     position: absolute;
-    left: 0; color: var(--orange);
+    left: 6px; top: 4px; color: var(--orange); font-weight: 800;
   }
 
-  /* User verdict (speech bubble) */
+  /* ---------- Review note (verdict) ---------- */
   .verdict {
-    margin-top: 8px;
-    background: #fffbe6;
-    border: 1.5px dashed var(--gold);
-    border-radius: 10px;
-    padding: 8px 12px;
-    font-family: "Gaegu", "Caveat", cursive;
-    font-size: 15px;
-    line-height: 1.3;
+    margin-top: 10px;
+    background: var(--gold-soft);
+    border: 1px solid rgba(240,140,0,.3);
+    border-left: 3px solid var(--gold);
+    border-radius: var(--radius-xs);
+    padding: 10px 13px;
+    font-family: var(--font);
+    font-size: 13.5px;
+    line-height: 1.5;
     color: var(--ink);
     position: relative;
   }
   .verdict::before {
-    content: "💬 내 평가";
+    content: "검토 의견";
     display: block;
     font-size: 10px;
     color: var(--gold);
     font-weight: 700;
-    letter-spacing: 0.5px;
-    margin-bottom: 2px;
-    font-family: "Pretendard", sans-serif;
-    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+    font-family: var(--font);
   }
   .verdict.empty {
-    background: white;
-    border-color: var(--board-line);
-    color: var(--ink-dim);
+    background: var(--surface-2);
+    border-color: var(--border);
+    border-left-color: var(--border-strong);
+    color: var(--ink-faint);
     font-style: italic;
   }
+  .verdict.empty::before { color: var(--ink-faint); }
 
-  /* Image slot */
+  /* ---------- Image slot ---------- */
   .img-slot {
-    margin-top: 10px;
+    margin-top: 12px;
     aspect-ratio: 16/9;
-    background: #fafaf5;
-    border: 2px dashed var(--board-line);
-    border-radius: 8px;
+    background: var(--surface-2);
+    border: 1.5px dashed var(--border-strong);
+    border-radius: var(--radius-sm);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     overflow: hidden;
     position: relative;
-    transition: all 0.15s;
+    transition: border-color .15s, background .15s;
   }
   .img-slot:hover {
     border-color: var(--gauss);
-    background: #f0f8ff;
+    background: var(--gauss-soft);
   }
   .img-slot.has-image {
     border-style: solid;
+    border-color: var(--border);
     padding: 0;
+    background: #0e1116;
   }
   .img-slot img, .img-slot video {
     width: 100%; height: 100%;
@@ -325,14 +432,18 @@
   }
   .img-slot .placeholder {
     text-align: center;
-    color: var(--ink-dim);
+    color: var(--ink-faint);
     font-size: 12px;
+    line-height: 1.5;
     pointer-events: none;
+    padding: 8px;
   }
   .img-slot .placeholder .icon {
-    font-size: 24px;
+    font-size: 20px;
+    font-weight: 300;
     display: block;
     margin-bottom: 4px;
+    opacity: .6;
   }
   .img-slot input[type=file] {
     position: absolute;
@@ -342,260 +453,487 @@
   }
   .img-slot .remove-btn {
     position: absolute;
-    top: 6px; right: 6px;
-    background: rgba(0,0,0,0.6);
+    top: 8px; right: 8px;
+    background: rgba(0,0,0,.55);
     color: white;
     border: none;
-    width: 24px; height: 24px;
+    width: 26px; height: 26px;
     border-radius: 50%;
-    font-size: 14px;
+    font-size: 15px;
+    line-height: 1;
     cursor: pointer;
     display: none;
+    transition: background .15s;
   }
+  .img-slot .remove-btn:hover { background: rgba(0,0,0,.8); }
   .img-slot.has-image .remove-btn { display: block; }
 
-  /* SVG connectors */
-  .connector-svg {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: -1;
-  }
-  .connector-svg path {
-    fill: none;
-    stroke-width: 2;
-    stroke-dasharray: 4 3;
-    opacity: 0.4;
+  /* ---------- Sticky panels (summary / actions / report boxes) ---------- */
+  .summary, .actions, .report-box {
+    max-width: 1480px;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    animation: rise .5s cubic-bezier(.2,.7,.3,1) both;
   }
 
-  /* Sticky note for final summary */
   .summary {
-    margin-top: 60px;
-    background: #fff9db;
-    border: 2px solid var(--gold);
-    border-radius: 12px;
-    padding: 20px 24px;
-    box-shadow: 4px 4px 0 rgba(245,159,0,0.15);
-    transform: rotate(-0.5deg);
+    margin-top: 44px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--gold);
+    padding: 24px 28px;
   }
   .summary h3 {
-    margin: 0 0 12px;
-    font-family: "Caveat", cursive;
-    font-size: 28px;
+    margin: 0 0 16px;
+    font-family: var(--font);
+    font-size: 19px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
     color: var(--ink);
   }
   .summary-row {
     display: grid;
-    grid-template-columns: 140px 1fr 2fr;
-    gap: 12px;
-    padding: 8px 0;
-    border-bottom: 1px dashed rgba(0,0,0,0.1);
+    grid-template-columns: 170px 220px 1fr;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
     font-size: 14px;
+    line-height: 1.55;
+    align-items: baseline;
   }
   .summary-row:last-child { border-bottom: none; }
-  .summary-row .cat { font-weight: 700; }
+  .summary-row .cat { font-weight: 700; color: var(--ink-dim); }
   .summary-row .sota-name {
-    font-family: "Caveat", cursive;
-    font-size: 18px;
-    font-weight: 700;
+    font-family: var(--font);
+    font-size: 15px;
+    font-weight: 800;
     color: var(--gold);
+    letter-spacing: -0.01em;
   }
 
-  /* TODO/Action items sticky */
   .actions {
-    margin-top: 40px;
-    background: #e7f5ff;
-    border: 2px solid var(--gauss);
-    border-radius: 12px;
-    padding: 20px 24px;
-    box-shadow: 4px 4px 0 rgba(77,171,247,0.15);
-    transform: rotate(0.3deg);
+    margin-top: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--gauss);
+    padding: 24px 28px;
   }
   .actions h3 {
-    margin: 0 0 12px;
-    font-family: "Caveat", cursive;
-    font-size: 28px;
+    margin: 0 0 14px;
+    font-family: var(--font);
+    font-size: 19px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
     color: var(--gauss);
   }
   .actions ul {
     margin: 0;
     padding-left: 20px;
     font-size: 14px;
-    line-height: 1.7;
+    line-height: 1.85;
+    color: var(--ink);
   }
   .actions li { cursor: text; }
-
-  /* Debug report sticky (G4Splat 진단) */
-  .debug-report {
-    margin-top: 40px;
-    background: #fff5f5;
-    border: 2px solid var(--red);
-    border-radius: 12px;
-    padding: 24px 28px;
-    box-shadow: 4px 4px 0 rgba(250,82,82,0.15);
-    transform: rotate(-0.3deg);
-  }
-  .debug-report h3 {
-    margin: 0 0 6px;
-    font-family: "Caveat", cursive;
-    font-size: 32px;
-    color: var(--red);
-  }
-  .debug-report .dr-subtitle {
-    color: var(--ink-dim);
-    font-size: 13px;
-    margin-bottom: 20px;
-  }
-  .debug-report h4 {
-    margin: 24px 0 8px;
-    font-size: 16px;
+  .actions .group-label {
+    display: block;
+    margin: 14px 0 4px;
+    font-size: 12px;
     font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--ink-faint);
+  }
+  .actions .group-label:first-child { margin-top: 0; }
+
+  /* ---------- Report boxes (shared) ---------- */
+  .report-box {
+    margin-top: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 28px 32px;
+  }
+  .report-box.debug-report  { border-top: 3px solid var(--red); }
+  .report-box.retarget-report { border-top: 3px solid var(--motion); }
+  .report-box h3 {
+    margin: 0 0 4px;
+    font-family: var(--font);
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .report-box.debug-report  h3 { color: var(--red); }
+  .report-box.retarget-report h3 { color: var(--motion); }
+  .report-box .dr-subtitle {
+    color: var(--ink-dim);
+    font-size: 13.5px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+  .report-box h4 {
+    margin: 28px 0 10px;
+    font-size: 15.5px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
     color: var(--ink);
-    border-bottom: 2px dashed var(--board-line);
-    padding-bottom: 4px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
   }
-  .debug-report h4 .icon {
-    margin-right: 6px;
-  }
-  .debug-report p, .debug-report li {
+  .report-box p, .report-box li {
     font-size: 14px;
-    line-height: 1.6;
+    line-height: 1.7;
   }
-  .debug-report ul, .debug-report ol {
-    margin: 4px 0 0;
+  .report-box ul, .report-box ol {
+    margin: 6px 0 0;
     padding-left: 22px;
   }
-  .debug-report code {
-    background: white;
-    padding: 1px 6px;
-    border-radius: 3px;
-    border: 1px solid var(--board-line);
-    font-family: "JetBrains Mono", Consolas, monospace;
+  .report-box li { margin: 2px 0; }
+  .report-box code {
+    background: var(--surface-2);
+    padding: 1.5px 6px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    font-family: var(--mono);
     font-size: 12px;
-    color: var(--ink);
+    color: var(--gen3d);
   }
-  .debug-report .dr-table {
+  .report-box .dr-table {
     width: 100%;
-    margin: 8px 0;
+    margin: 12px 0;
     border-collapse: collapse;
     font-size: 13px;
-    background: white;
-    border-radius: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xs);
     overflow: hidden;
   }
-  .debug-report .dr-table th,
-  .debug-report .dr-table td {
-    padding: 6px 10px;
-    border: 1px solid var(--board-line);
+  .report-box .dr-table th,
+  .report-box .dr-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
     text-align: left;
+    line-height: 1.5;
   }
-  .debug-report .dr-table th {
-    background: #ffe3e3;
+  .report-box .dr-table tr:last-child td { border-bottom: none; }
+  .report-box .dr-table th:last-child,
+  .report-box .dr-table td:last-child { border-right: none; }
+  .report-box .dr-table th {
+    background: var(--surface-2);
     font-weight: 700;
+    color: var(--ink-dim);
   }
-  .debug-report .dr-table .ok { color: var(--green); font-weight: 700; }
-  .debug-report .dr-table .fail { color: var(--red); font-weight: 700; }
-  .debug-report .dr-table .skip { color: var(--ink-dim); }
-  .debug-report .callout {
-    background: #fff9db;
-    border-left: 4px solid var(--gold);
-    padding: 10px 14px;
-    margin: 8px 0;
-    border-radius: 4px;
-    font-size: 13px;
+  .report-box .dr-table .ok   { color: var(--green); font-weight: 700; }
+  .report-box .dr-table .fail { color: var(--red);   font-weight: 700; }
+  .report-box .dr-table .skip { color: var(--ink-faint); }
+  .report-box .callout {
+    background: var(--gold-soft);
+    border: 1px solid rgba(240,140,0,.3);
+    border-left: 3px solid var(--gold);
+    padding: 12px 16px;
+    margin: 12px 0;
+    border-radius: var(--radius-xs);
+    font-size: 13.5px;
+    line-height: 1.65;
   }
-  .debug-report .callout strong { color: var(--ink); }
-  .debug-report pre {
-    background: #1f2937;
+  .report-box.retarget-report .callout {
+    background: var(--motion-soft);
+    border-color: rgba(12,133,153,.3);
+    border-left-color: var(--motion);
+  }
+  .report-box .callout strong { color: var(--ink); }
+  .report-box pre {
+    background: #0e1116;
     color: #e5e7eb;
-    padding: 12px;
-    border-radius: 6px;
+    padding: 14px;
+    border-radius: var(--radius-xs);
+    font-family: var(--mono);
     font-size: 12px;
     overflow-x: auto;
-    line-height: 1.5;
-    margin: 6px 0;
-  }
-  .debug-report .stage-flow {
-    display: grid;
-    grid-template-columns: 60px 1fr;
-    gap: 8px 12px;
+    line-height: 1.6;
     margin: 8px 0;
+    white-space: pre;
+  }
+  .report-box .stage-flow {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: 8px 14px;
+    margin: 12px 0;
     font-size: 13px;
   }
-  .debug-report .stage-flow .lbl {
-    font-weight: 700;
+  .report-box .stage-flow .lbl {
+    font-weight: 800;
     text-align: right;
     align-self: center;
-  }
-  .debug-report .stage-flow .line {
-    padding: 6px 10px;
-    background: white;
-    border-radius: 6px;
-    border-left: 3px solid var(--board-line);
-  }
-  .debug-report .stage-flow .line.ok { border-left-color: var(--green); }
-  .debug-report .stage-flow .line.fail { border-left-color: var(--red); background: #fff5f5; }
-  .debug-report .stage-flow .line.skip { border-left-color: var(--ink-dim); color: var(--ink-dim); font-style: italic; }
-
-  /* Add node button */
-  .add-node-btn {
-    background: white;
-    border: 2px dashed var(--board-line);
-    border-radius: 12px;
-    padding: 8px 16px;
     color: var(--ink-dim);
-    font-size: 13px;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.15s;
-    align-self: stretch;
   }
-  .add-node-btn:hover {
-    border-color: var(--ink);
-    color: var(--ink);
-    background: white;
+  .report-box .stage-flow .line {
+    padding: 8px 12px;
+    background: var(--surface-2);
+    border-radius: var(--radius-xs);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--border-strong);
+    line-height: 1.55;
   }
-
-  /* Editable highlight */
-  [contenteditable=true]:focus {
-    outline: 2px solid var(--gauss);
-    outline-offset: 2px;
-    background: white;
-    border-radius: 4px;
+  .report-box .stage-flow .line.ok   { border-left-color: var(--green); }
+  .report-box .stage-flow .line.fail {
+    border-left-color: var(--red);
+    background: var(--erase-soft);
   }
-  [contenteditable=true]:empty::before {
-    content: attr(data-placeholder);
-    color: var(--ink-dim);
+  .report-box .stage-flow .line.skip {
+    border-left-color: var(--ink-faint);
+    color: var(--ink-faint);
     font-style: italic;
   }
 
-  /* Print */
+  /* ---------- Add node button ---------- */
+  .add-node-btn {
+    background: transparent;
+    border: 1.5px dashed var(--border-strong);
+    border-radius: var(--radius-sm);
+    padding: 11px 16px;
+    color: var(--ink-faint);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color .15s, color .15s, background .15s;
+  }
+  .add-node-btn:hover {
+    border-color: var(--gauss);
+    color: var(--gauss);
+    background: var(--gauss-soft);
+  }
+
+  /* ---------- Editable highlight ---------- */
+  [contenteditable=true] {
+    border-radius: 5px;
+    transition: outline-color .1s;
+  }
+  [contenteditable=true]:focus {
+    outline: 2px solid var(--gauss);
+    outline-offset: 2px;
+    background: var(--gauss-soft);
+  }
+  [contenteditable=true]:empty::before {
+    content: attr(data-placeholder);
+    color: var(--ink-faint);
+    font-style: italic;
+  }
+
+  /* ---------- Node controls (drag + status) ---------- */
+  .node-controls {
+    position: absolute;
+    top: 10px; right: 10px;
+    display: flex; align-items: center; gap: 6px;
+    z-index: 2;
+  }
+  .drag-handle {
+    cursor: grab;
+    color: var(--ink-faint);
+    font-size: 14px; line-height: 1;
+    padding: 2px 4px;
+    border-radius: 5px;
+    user-select: none;
+    letter-spacing: -2px;
+  }
+  .drag-handle:hover { color: var(--ink-dim); background: var(--surface-2); }
+  .drag-handle:active { cursor: grabbing; }
+  .status-select {
+    font-family: inherit;
+    font-size: 11px; font-weight: 600;
+    color: var(--ink-dim);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 3px 6px;
+    cursor: pointer;
+    max-width: 100px;
+  }
+  .status-select:hover { border-color: var(--border-strong); }
+  .node-title { padding-right: 108px; }
+  .node.dragging {
+    opacity: .45;
+    outline: 2px dashed var(--gauss);
+    outline-offset: 2px;
+  }
+
+  /* ---------- Node link row ---------- */
+  .node-link {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 8px;
+    padding: 7px 10px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xs);
+    font-size: 12px;
+  }
+  .node-link-ico { color: var(--ink-faint); font-size: 13px; flex: none; }
+  .node-link-url {
+    flex: 1; min-width: 0;
+    color: var(--gauss);
+    font-family: var(--mono);
+    font-size: 11.5px;
+    line-height: 1.45;
+    word-break: break-all;
+    cursor: text;
+  }
+  .node-link-url:empty::before {
+    content: attr(data-placeholder);
+    color: var(--ink-faint);
+    font-family: var(--font);
+    font-style: italic;
+  }
+  .node-link-go {
+    flex: none;
+    color: var(--gauss);
+    text-decoration: none;
+    font-weight: 700; font-size: 11px;
+    padding: 2px 9px;
+    border: 1px solid var(--gauss);
+    border-radius: 999px;
+    background: var(--surface);
+    transition: background .15s;
+  }
+  .node-link-go:hover { background: var(--gauss-soft); }
+  .node-link-go.hidden { display: none; }
+
+  /* ---------- Media gallery (multiple images / videos) ---------- */
+  .media-gallery {
+    margin-top: 12px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .media-item, .media-add {
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    position: relative;
+  }
+  .media-item {
+    border: 1px solid var(--border);
+    background: #0e1116;
+    cursor: zoom-in;
+  }
+  .media-item img, .media-item video {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .media-remove {
+    position: absolute;
+    top: 5px; right: 5px;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: rgba(0,0,0,.6);
+    color: #fff; border: none;
+    font-size: 13px; line-height: 1;
+    cursor: pointer; display: none;
+  }
+  .media-remove:hover { background: rgba(0,0,0,.85); }
+  .media-item:hover .media-remove { display: block; }
+  .media-add {
+    border: 1.5px dashed var(--border-strong);
+    background: var(--surface-2);
+    color: var(--ink-faint);
+    font-size: 12px; font-weight: 600;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 2px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color .15s, color .15s, background .15s;
+  }
+  .media-add .ico { font-size: 20px; font-weight: 300; line-height: 1; }
+  .media-add:hover {
+    border-color: var(--gauss);
+    color: var(--gauss);
+    background: var(--gauss-soft);
+  }
+
+  /* lightbox */
+  #media-lightbox {
+    position: fixed; inset: 0; z-index: 1000;
+    display: none; align-items: center; justify-content: center;
+    background: rgba(10,12,16,.86);
+    padding: 32px; cursor: zoom-out;
+  }
+  #media-lightbox img, #media-lightbox video {
+    max-width: 92vw; max-height: 92vh;
+    border-radius: 8px;
+    box-shadow: 0 12px 48px rgba(0,0,0,.5);
+  }
+
+  /* ---------- View / edit mode + media embeds ---------- */
+  #edit-btn.active {
+    background: var(--gauss);
+    color: #fff;
+    border-color: var(--gauss);
+  }
+  body.viewing .drag-handle,
+  body.viewing .status-select,
+  body.viewing .add-node-btn,
+  body.viewing .del-node,
+  body.viewing .media-add,
+  body.viewing .media-remove { display: none !important; }
+  body.viewing .node:hover { transform: none; }
+  body.viewing .node-title { padding-right: 18px; }
+
+  .media-item iframe {
+    width: 100%; height: 100%;
+    border: 0; display: block;
+  }
+  .media-card {
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 4px;
+    background: var(--surface-2);
+    color: var(--ink-dim);
+    font-size: 11px; padding: 6px; text-align: center;
+  }
+  .media-card .mc-ico { font-size: 18px; color: var(--gauss); }
+  .media-card .mc-host { word-break: break-all; line-height: 1.3; }
+
+  /* ---------- Motion ---------- */
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+
+  /* ---------- Print ---------- */
   @media print {
     .toolbar, .add-node-btn { display: none; }
     body { background: white; }
+    .node, .summary, .actions, .report-box, .branch-head {
+      box-shadow: none;
+      animation: none;
+    }
   }
 </style>
 </head>
 <body>
 
 <div class="toolbar">
-  <span class="save-status" id="save-status">저장됨</span>
-  <button onclick="exportJSON()">💾 JSON 저장</button>
-  <button onclick="document.getElementById('import-input').click()">📂 불러오기</button>
+  <span class="save-status" id="save-status">보기 모드</span>
+  <button id="edit-btn" onclick="toggleEdit()">✎ 편집</button>
+  <button onclick="exportJSON()">JSON 저장</button>
+  <button onclick="document.getElementById('import-input').click()">불러오기</button>
   <input type="file" id="import-input" accept=".json" style="display:none" onchange="importJSON(event)">
-  <button onclick="resetAll()">🔄 초기화</button>
-  <button onclick="window.print()">🖨️ 인쇄/PDF</button>
+  <button onclick="resetAll()">초기화</button>
+  <button onclick="window.print()">인쇄/PDF</button>
 </div>
 
 <header>
-  <h1 contenteditable="true">AI 모델 SOTA 마인드맵</h1>
-  <div class="subtitle" contenteditable="true">VP-Studio R&D · 2026-05-22 · 클릭해서 어디든 직접 수정</div>
+  <h1 contenteditable="true">버추얼 스카우팅 R&amp;D · AI 모델 SOTA 마인드맵</h1>
+  <div class="subtitle" contenteditable="true">VP-Studio R&amp;D · 버추얼 스카우팅 · 프리비즈 · 테크비즈 PoC 결과 정리 (2026-05-07 ~ 2026-05-22) · 전사 공유용 · 기본 보기 모드 · 우상단 [편집]으로 수정 · 미디어는 링크로 첨부</div>
   <div class="legend">
+    <span class="legend-item"><span class="legend-dot gauss"></span>Gaussian Splatting (환경 스캔)</span>
+    <span class="legend-item"><span class="legend-dot gen3d"></span>3D 오브젝트 생성</span>
     <span class="legend-item"><span class="legend-dot erase"></span>객체 지우기</span>
-    <span class="legend-item"><span class="legend-dot gauss"></span>Gaussian Splatting</span>
-    <span class="legend-item"><span class="legend-dot gen3d"></span>3D 생성</span>
+    <span class="legend-item"><span class="legend-dot motion"></span>모션 생성 AI</span>
     <span class="legend-item"><span class="legend-dot sota"></span>SOTA</span>
   </div>
 </header>
@@ -603,239 +941,424 @@
 <div class="map-wrap">
 <div class="map" id="map">
 
-  <!-- ============ 객체 지우기 ============ -->
-  <div class="branch erase">
-    <div class="branch-head" contenteditable="true">
-      <span class="emoji">🪄</span>객체 지우기
-    </div>
-
-    <div class="node sota">
-      <div class="node-title" contenteditable="true"><a href="https://github.com/FudanCVL/EffectErase" target="_blank">EffectErase</a></div>
-      <div class="node-tagline" contenteditable="true">Fudan CVL · 영상 객체 제거 (effect 단위)</div>
-      <ul class="sub-list">
-        <li class="plus" contenteditable="true">그림자/반사까지 effect 단위 분리</li>
-        <li class="plus" contenteditable="true">temporal consistency 우수</li>
-        <li class="minus" contenteditable="true">VRAM 요구량 큼, 추론 느림</li>
-      </ul>
-      <div class="verdict" contenteditable="true">세 모델 중 가장 깔끔. SOTA 인정.</div>
-      <div class="img-slot" data-slot="effecterase">
-        <div class="placeholder"><span class="icon">📸</span>before/after 영상·이미지<br>클릭해서 추가</div>
-        <input type="file" accept="image/*,video/*">
-        <button class="remove-btn" type="button">×</button>
-      </div>
-    </div>
-
-    <div class="node">
-      <div class="node-title" contenteditable="true"><a href="https://github.com/neilsonnn/image-blaster" target="_blank">Image Blaster</a></div>
-      <div class="node-tagline" contenteditable="true">neilsonnn · 이미지 단위 빠른 도구</div>
-      <ul class="sub-list">
-        <li class="plus" contenteditable="true">가볍고 빠른 인터랙티브 도구</li>
-        <li class="minus" contenteditable="true">영상 단위 처리 없음, 단일 프레임</li>
-      </ul>
-      <div class="verdict empty" contenteditable="true" data-placeholder="실험 결과 적어줘...">미평가</div>
-      <div class="img-slot" data-slot="image-blaster">
-        <div class="placeholder"><span class="icon">📸</span>결과 추가</div>
-        <input type="file" accept="image/*,video/*">
-        <button class="remove-btn" type="button">×</button>
-      </div>
-    </div>
-
-    <div class="node">
-      <div class="node-title" contenteditable="true"><a href="https://github.com/netflix/void-model" target="_blank">Void Model</a></div>
-      <div class="node-tagline" contenteditable="true">Netflix · production-grade matting/removal</div>
-      <ul class="sub-list">
-        <li class="plus" contenteditable="true">Netflix 프로덕션 검증, 영상 안정</li>
-        <li class="minus" contenteditable="true">객체 제거 보다 matting 중심</li>
-      </ul>
-      <div class="verdict empty" contenteditable="true" data-placeholder="실험 결과 적어줘...">미평가</div>
-      <div class="img-slot" data-slot="void-model">
-        <div class="placeholder"><span class="icon">📸</span>결과 추가</div>
-        <input type="file" accept="image/*,video/*">
-        <button class="remove-btn" type="button">×</button>
-      </div>
-    </div>
-
-    <button class="add-node-btn" onclick="addNode(this, 'erase')">+ 모델 추가</button>
-  </div>
-
-  <!-- ============ 가우시안 ============ -->
+  <!-- ============ Gaussian Splatting (environment scan) ============ -->
   <div class="branch gauss">
     <div class="branch-head" contenteditable="true">
-      <span class="emoji">✨</span>Gaussian Splatting
+      Gaussian Splatting
+      <span class="kicker">환경 전체 스캔 · 출력 .ply (3DGS)</span>
     </div>
 
-    <div class="node sota">
-      <div class="node-title" contenteditable="true"><a href="https://reconstruction-by-generation.github.io/" target="_blank">Reconstruction-by-Generation</a></div>
-      <div class="node-tagline" contenteditable="true">Generative prior 기반 3DGS 재구성</div>
-      <ul class="sub-list">
-        <li class="plus" contenteditable="true">희소 뷰에서도 안정적</li>
-        <li class="plus" contenteditable="true">실사용 데이터 OK</li>
-        <li class="warn" contenteditable="true">절대 품질은 Pixel3D(3D 생성) 가 더 높음</li>
-      </ul>
-      <div class="verdict" contenteditable="true">잘되더라. 가우시안 출력은 OK, 절대 품질로는 Pixel3D 가 더 좋음.</div>
-      <div class="img-slot" data-slot="rbg">
-        <div class="placeholder"><span class="icon">📸</span>3DGS 렌더 / .ply 캡쳐</div>
-        <input type="file" accept="image/*,video/*">
-        <button class="remove-btn" type="button">×</button>
+    <div class="node partial">
+      <div class="node-controls">
+        <span class="drag-handle" title="드래그하여 순서 변경" aria-hidden="true">⠿</span>
+        <select class="status-select" title="상태 라벨" onclick="event.stopPropagation()"><option value="none">— 없음</option><option value="sota">★ SOTA</option><option value="partial" selected>△ 제한적</option><option value="unverified">○ 미검증</option><option value="failed">× 실패</option></select>
       </div>
-    </div>
-
-    <div class="node">
-      <div class="node-title" contenteditable="true"><a href="https://github.com/Tencent-Hunyuan/HY-World-2.0" target="_blank">Hunyuan World 2.0</a></div>
-      <div class="node-tagline" contenteditable="true">Tencent · text/image → 3DGS world</div>
+      <div class="node-title" contenteditable="true">Hunyuan World 2.0</div>
+      <div class="node-link">
+        <span class="node-link-ico" aria-hidden="true">↗</span>
+        <span class="node-link-url" contenteditable="true" data-placeholder="git / 링크 주소 입력...">https://github.com/Tencent-Hunyuan/HY-World-2.0</span>
+        <a class="node-link-go hidden" target="_blank" rel="noopener" title="새 탭에서 열기">열기</a>
+      </div>
+      <div class="node-tagline" contenteditable="true">Tencent · text/image/panorama → 3DGS world</div>
       <ul class="sub-list">
-        <li class="plus" contenteditable="true">feed-forward 빠름</li>
-        <li class="plus" contenteditable="true">panorama→3DGS, text→3DGS 다입력</li>
-        <li class="minus" contenteditable="true">해상도 제한 (현재 너무 작음)</li>
+        <li class="plus" contenteditable="true">Feed-forward 방식으로 학습 없이 수 분 내 출력</li>
+        <li class="plus" contenteditable="true">텍스트·이미지·파노라마 다중 입력 지원</li>
+        <li class="minus" contenteditable="true">출력 해상도가 1024² 미만으로 영화·CF 품질에 미달</li>
+        <li class="minus" contenteditable="true">텍스처 디테일 부족, UE 임포트 시 LOD 단계 부족</li>
       </ul>
-      <div class="verdict" contenteditable="true">좋긴 한데 해상도가 너무 작아서 실용성 떨어짐.</div>
-      <div class="img-slot" data-slot="hyworld2">
-        <div class="placeholder"><span class="icon">📸</span>결과 추가</div>
-        <input type="file" accept="image/*,video/*">
-        <button class="remove-btn" type="button">×</button>
+      <div class="verdict" contenteditable="true">프로토타입 용도로 한정됨. 양산 라인업 적용은 불가하며, tile/upscale 후처리는 별도 R&amp;D 라운드가 필요함.</div>
+      <div class="media-gallery" data-gallery="hyworld2">
+        <button class="media-add" type="button"><span class="ico">+</span>미디어 링크 추가</button>
       </div>
     </div>
 
     <div class="node failed">
-      <div class="node-title" contenteditable="true"><a href="https://github.com/DaLi-Jack/G4Splat" target="_blank">G4Splat</a></div>
+      <div class="node-controls">
+        <span class="drag-handle" title="드래그하여 순서 변경" aria-hidden="true">⠿</span>
+        <select class="status-select" title="상태 라벨" onclick="event.stopPropagation()"><option value="none">— 없음</option><option value="sota">★ SOTA</option><option value="partial">△ 제한적</option><option value="unverified">○ 미검증</option><option value="failed" selected>× 실패</option></select>
+      </div>
+      <div class="node-title" contenteditable="true">G4Splat</div>
+      <div class="node-link">
+        <span class="node-link-ico" aria-hidden="true">↗</span>
+        <span class="node-link-url" contenteditable="true" data-placeholder="git / 링크 주소 입력...">https://github.com/DaLi-Jack/G4Splat</span>
+        <a class="node-link-go hidden" target="_blank" rel="noopener" title="새 탭에서 열기">열기</a>
+      </div>
       <div class="node-tagline" contenteditable="true">ICLR 2026 · Geometry + See3D prior</div>
       <ul class="sub-list">
-        <li class="plus" contenteditable="true">희소 뷰 (5장) 에서도 동작 — 논문상 SOTA</li>
-        <li class="minus" contenteditable="true">실험 결과 4영상 중 1개만 Stage 1 완주 (25%)</li>
-        <li class="minus" contenteditable="true">Stage 1 의 600 iter 부근에서 densify 폭주 → OOM</li>
-        <li class="minus" contenteditable="true">See3D 체크포인트 위치 README 누락 (저자 개인 계정 bruiiii/See3D)</li>
-        <li class="warn" contenteditable="true">데모 데이터: ScanNet++/Replica orbit shot 한정</li>
-        <li class="warn" contenteditable="true">실사용 영상 (1080p panning) 은 SfM/densify 모두 약함</li>
+        <li class="plus" contenteditable="true">희소 뷰(5장)에서도 동작하며 논문상 SOTA</li>
+        <li class="minus" contenteditable="true">4클립 중 1클립만 Stage 1 완주 (성공률 25%)</li>
+        <li class="minus" contenteditable="true">600 iter 부근 densify 폭주로 OOM 발생 (A100 80GB에서도 동일)</li>
+        <li class="minus" contenteditable="true">See3D 체크포인트 위치가 README에 누락 (저자 개인 계정 bruiiii/See3D)</li>
+        <li class="warn" contenteditable="true">데모 데이터가 ScanNet++/Replica orbit shot에 한정됨</li>
+        <li class="warn" contenteditable="true">실사용 영상(1080p panning)은 SfM·densify 모두 취약</li>
       </ul>
-      <div class="verdict" contenteditable="true">맨날 안 나옴 ㅜㅜ → 원인 파악 완료. 아래 "G4Splat 디버그 보고서" 박스 참고.</div>
-      <div class="img-slot" data-slot="g4splat">
-        <div class="placeholder"><span class="icon">📸</span>데모 vs 내 결과 비교</div>
-        <input type="file" accept="image/*,video/*">
-        <button class="remove-btn" type="button">×</button>
+      <div class="verdict" contenteditable="true">현 스튜디오 GPU 환경에서 안정적 산출 불가. 원인 분석은 하단 「G4Splat 디버그 분석」 참조.</div>
+      <div class="media-gallery" data-gallery="g4splat">
+        <button class="media-add" type="button"><span class="ico">+</span>미디어 링크 추가</button>
       </div>
     </div>
 
     <div class="node unverified">
-      <div class="node-title" contenteditable="true"><a href="https://nvlabs.github.io/Sana/WM/" target="_blank">Sana WM</a></div>
+      <div class="node-controls">
+        <span class="drag-handle" title="드래그하여 순서 변경" aria-hidden="true">⠿</span>
+        <select class="status-select" title="상태 라벨" onclick="event.stopPropagation()"><option value="none">— 없음</option><option value="sota">★ SOTA</option><option value="partial">△ 제한적</option><option value="unverified" selected>○ 미검증</option><option value="failed">× 실패</option></select>
+      </div>
+      <div class="node-title" contenteditable="true">Sana WM</div>
+      <div class="node-link">
+        <span class="node-link-ico" aria-hidden="true">↗</span>
+        <span class="node-link-url" contenteditable="true" data-placeholder="git / 링크 주소 입력...">https://nvlabs.github.io/Sana/WM/</span>
+        <a class="node-link-go hidden" target="_blank" rel="noopener" title="새 탭에서 열기">열기</a>
+      </div>
       <div class="node-tagline" contenteditable="true">NVIDIA · World Model (Sana 기반)</div>
       <ul class="sub-list">
-        <li class="plus" contenteditable="true">NVIDIA 최신, Sana 본가 강함</li>
-        <li class="warn" contenteditable="true">아직 안 해봄 — 다음 검증 대상</li>
+        <li class="plus" contenteditable="true">NVIDIA 최신 World Model, 높은 생성 성능 기대</li>
+        <li class="warn" contenteditable="true">미검증 — 차기 검증 1순위 (G4Splat 동일 데이터로 비교 예정)</li>
       </ul>
-      <div class="verdict empty" contenteditable="true" data-placeholder="실험 후 적어줘...">미실험. 다음 우선.</div>
-      <div class="img-slot" data-slot="sana-wm">
-        <div class="placeholder"><span class="icon">📸</span>(미실험)</div>
-        <input type="file" accept="image/*,video/*">
-        <button class="remove-btn" type="button">×</button>
+      <div class="verdict empty" contenteditable="true" data-placeholder="검토 의견 입력...">미검증. 차기 검증 1순위.</div>
+      <div class="media-gallery" data-gallery="sana-wm">
+        <button class="media-add" type="button"><span class="ico">+</span>미디어 링크 추가</button>
       </div>
     </div>
 
     <button class="add-node-btn" onclick="addNode(this, 'gauss')">+ 모델 추가</button>
   </div>
 
-  <!-- ============ 3D 생성 ============ -->
+  <!-- ============ 3D Object Generation ============ -->
   <div class="branch gen3d">
     <div class="branch-head" contenteditable="true">
-      <span class="emoji">🎲</span>3D 생성
+      3D 오브젝트 생성
+      <span class="kicker">소품·메쉬 단위 · 출력 mesh + UV</span>
     </div>
 
     <div class="node sota">
+      <div class="node-controls">
+        <span class="drag-handle" title="드래그하여 순서 변경" aria-hidden="true">⠿</span>
+        <select class="status-select" title="상태 라벨" onclick="event.stopPropagation()"><option value="none">— 없음</option><option value="sota" selected>★ SOTA</option><option value="partial">△ 제한적</option><option value="unverified">○ 미검증</option><option value="failed">× 실패</option></select>
+      </div>
       <div class="node-title" contenteditable="true">Pixel3D</div>
+      <div class="node-link">
+        <span class="node-link-ico" aria-hidden="true">↗</span>
+        <span class="node-link-url" contenteditable="true" data-placeholder="git / 링크 주소 입력..."></span>
+        <a class="node-link-go hidden" target="_blank" rel="noopener" title="새 탭에서 열기">열기</a>
+      </div>
       <div class="node-tagline" contenteditable="true">image → mesh · 현 3D 생성 SOTA</div>
       <ul class="sub-list">
-        <li class="plus" contenteditable="true">디테일 가장 풍부</li>
-        <li class="plus" contenteditable="true">토폴로지 양호</li>
-        <li class="minus" contenteditable="true">UV 맵 엉망진창 (공통 문제)</li>
+        <li class="plus" contenteditable="true">표면 디테일·미세 굴곡 재현도가 가장 우수</li>
+        <li class="plus" contenteditable="true">토폴로지 양호 — 일반 사용 가능 수준</li>
+        <li class="minus" contenteditable="true">UV 맵 품질 미흡 (3D 생성 AI 공통 문제)</li>
       </ul>
-      <div class="verdict" contenteditable="true">누가 뭐래도 현 3D AI 중 SOTA. UV 만 해결되면 완벽.</div>
-      <div class="img-slot" data-slot="pixel3d">
-        <div class="placeholder"><span class="icon">📸</span>mesh 렌더 / turntable</div>
-        <input type="file" accept="image/*,video/*">
-        <button class="remove-btn" type="button">×</button>
+      <div class="verdict" contenteditable="true">현 3D 생성 AI 중 SOTA로 판단함. UV 후처리만 보완되면 양산 적용 가능.</div>
+      <div class="media-gallery" data-gallery="pixel3d">
+        <button class="media-add" type="button"><span class="ico">+</span>미디어 링크 추가</button>
+      </div>
+    </div>
+
+    <div class="node sota">
+      <div class="node-controls">
+        <span class="drag-handle" title="드래그하여 순서 변경" aria-hidden="true">⠿</span>
+        <select class="status-select" title="상태 라벨" onclick="event.stopPropagation()"><option value="none">— 없음</option><option value="sota" selected>★ SOTA</option><option value="partial">△ 제한적</option><option value="unverified">○ 미검증</option><option value="failed">× 실패</option></select>
+      </div>
+      <div class="node-title" contenteditable="true">Reconstruction-by-Generation</div>
+      <div class="node-link">
+        <span class="node-link-ico" aria-hidden="true">↗</span>
+        <span class="node-link-url" contenteditable="true" data-placeholder="git / 링크 주소 입력...">https://reconstruction-by-generation.github.io/</span>
+        <a class="node-link-go hidden" target="_blank" rel="noopener" title="새 탭에서 열기">열기</a>
+      </div>
+      <div class="node-tagline" contenteditable="true">Generative prior 기반 · 희소 뷰(5~10장) 재구성</div>
+      <ul class="sub-list">
+        <li class="plus" contenteditable="true">Generative prior가 부족한 시점을 자동 보강, 희소 뷰에서도 안정적</li>
+        <li class="plus" contenteditable="true">실사용 영상에서 robustness 우수 (동작 확인)</li>
+        <li class="plus" contenteditable="true">메쉬·3DGS 양쪽 출력 가능</li>
+        <li class="warn" contenteditable="true">단일 이미지 입력 시 절대 품질은 Pixel3D가 우위</li>
+      </ul>
+      <div class="verdict" contenteditable="true">Pixel3D와 상호 보완 관계. 단일 이미지 디테일은 Pixel3D, 다중 뷰 robustness는 본 모델이 우수함.</div>
+      <div class="media-gallery" data-gallery="rbg">
+        <button class="media-add" type="button"><span class="ico">+</span>미디어 링크 추가</button>
       </div>
     </div>
 
     <div class="node">
-      <div class="node-title" contenteditable="true">UV Wrapper AI</div>
-      <div class="node-tagline" contenteditable="true">아직 코드 공개된 AI 없음</div>
+      <div class="node-controls">
+        <span class="drag-handle" title="드래그하여 순서 변경" aria-hidden="true">⠿</span>
+        <select class="status-select" title="상태 라벨" onclick="event.stopPropagation()"><option value="none" selected>— 없음</option><option value="sota">★ SOTA</option><option value="partial">△ 제한적</option><option value="unverified">○ 미검증</option><option value="failed">× 실패</option></select>
+      </div>
+      <div class="node-title" contenteditable="true">UV 후처리</div>
+      <div class="node-link">
+        <span class="node-link-ico" aria-hidden="true">↗</span>
+        <span class="node-link-url" contenteditable="true" data-placeholder="git / 링크 주소 입력..."></span>
+        <a class="node-link-go hidden" target="_blank" rel="noopener" title="새 탭에서 열기">열기</a>
+      </div>
+      <div class="node-tagline" contenteditable="true">3D 생성 mesh의 UV 정리 단계 (필수)</div>
       <ul class="sub-list">
-        <li class="warn" contenteditable="true">DA-Wand, AutoUV, Nuvo — 학술 공개 제한</li>
-        <li class="plus" contenteditable="true">대안: xatlas (traditional), RizomUV (상용)</li>
+        <li class="warn" contenteditable="true">자동 UV AI(DA-Wand·Nuvo·AutoUV)는 코드 비공개로 사용 불가</li>
+        <li class="plus" contenteditable="true">대안: xatlas(오픈소스), RizomUV(상용, 약 400 USD)</li>
       </ul>
-      <div class="verdict" contenteditable="true">현재까지는 traditional algo (xatlas / RizomUV) 가 답.</div>
-      <div class="img-slot" data-slot="uv">
-        <div class="placeholder"><span class="icon">📸</span>UV 비교 (엉망 vs 정리됨)</div>
-        <input type="file" accept="image/*,video/*">
-        <button class="remove-btn" type="button">×</button>
+      <div class="verdict" contenteditable="true">현 시점 traditional algorithm(xatlas/RizomUV)이 현실적 해법. Pixel3D + xatlas + retopo 자동화 스크립트가 차기 과제.</div>
+      <div class="media-gallery" data-gallery="uv">
+        <button class="media-add" type="button"><span class="ico">+</span>미디어 링크 추가</button>
       </div>
     </div>
 
     <button class="add-node-btn" onclick="addNode(this, 'gen3d')">+ 모델 추가</button>
   </div>
 
+  <!-- ============ Object Erase ============ -->
+  <div class="branch erase">
+    <div class="branch-head" contenteditable="true">
+      객체 지우기
+      <span class="kicker">실측 영상 사전 정리 · 보조 분야</span>
+    </div>
+
+    <div class="node sota">
+      <div class="node-controls">
+        <span class="drag-handle" title="드래그하여 순서 변경" aria-hidden="true">⠿</span>
+        <select class="status-select" title="상태 라벨" onclick="event.stopPropagation()"><option value="none">— 없음</option><option value="sota" selected>★ SOTA</option><option value="partial">△ 제한적</option><option value="unverified">○ 미검증</option><option value="failed">× 실패</option></select>
+      </div>
+      <div class="node-title" contenteditable="true">EffectErase</div>
+      <div class="node-link">
+        <span class="node-link-ico" aria-hidden="true">↗</span>
+        <span class="node-link-url" contenteditable="true" data-placeholder="git / 링크 주소 입력...">https://github.com/FudanCVL/EffectErase</span>
+        <a class="node-link-go hidden" target="_blank" rel="noopener" title="새 탭에서 열기">열기</a>
+      </div>
+      <div class="node-tagline" contenteditable="true">Fudan CVL · 영상 객체 제거 (effect 단위)</div>
+      <ul class="sub-list">
+        <li class="plus" contenteditable="true">그림자·반사까지 effect 단위로 분리·제거</li>
+        <li class="plus" contenteditable="true">temporal consistency 우수 (영상 처리 안정)</li>
+        <li class="minus" contenteditable="true">VRAM 요구량이 크고 추론 속도가 느림</li>
+      </ul>
+      <div class="verdict" contenteditable="true">검토 대상 중 결과물이 가장 정제됨. SOTA로 판단하며, 촬영 본편 정리 단계에 통합 권장.</div>
+      <div class="media-gallery" data-gallery="effecterase">
+        <button class="media-add" type="button"><span class="ico">+</span>미디어 링크 추가</button>
+      </div>
+    </div>
+
+    <div class="node unverified">
+      <div class="node-controls">
+        <span class="drag-handle" title="드래그하여 순서 변경" aria-hidden="true">⠿</span>
+        <select class="status-select" title="상태 라벨" onclick="event.stopPropagation()"><option value="none">— 없음</option><option value="sota">★ SOTA</option><option value="partial">△ 제한적</option><option value="unverified" selected>○ 미검증</option><option value="failed">× 실패</option></select>
+      </div>
+      <div class="node-title" contenteditable="true">Image Blaster</div>
+      <div class="node-link">
+        <span class="node-link-ico" aria-hidden="true">↗</span>
+        <span class="node-link-url" contenteditable="true" data-placeholder="git / 링크 주소 입력...">https://github.com/neilsonnn/image-blaster</span>
+        <a class="node-link-go hidden" target="_blank" rel="noopener" title="새 탭에서 열기">열기</a>
+      </div>
+      <div class="node-tagline" contenteditable="true">neilsonnn · 이미지 단위 빠른 도구</div>
+      <ul class="sub-list">
+        <li class="plus" contenteditable="true">가볍고 빠른 인터랙티브 도구</li>
+        <li class="minus" contenteditable="true">영상 단위 처리를 지원하지 않으며 단일 프레임에 한정됨</li>
+      </ul>
+      <div class="verdict empty" contenteditable="true" data-placeholder="검토 의견 입력...">미검증.</div>
+      <div class="media-gallery" data-gallery="image-blaster">
+        <button class="media-add" type="button"><span class="ico">+</span>미디어 링크 추가</button>
+      </div>
+    </div>
+
+    <div class="node unverified">
+      <div class="node-controls">
+        <span class="drag-handle" title="드래그하여 순서 변경" aria-hidden="true">⠿</span>
+        <select class="status-select" title="상태 라벨" onclick="event.stopPropagation()"><option value="none">— 없음</option><option value="sota">★ SOTA</option><option value="partial">△ 제한적</option><option value="unverified" selected>○ 미검증</option><option value="failed">× 실패</option></select>
+      </div>
+      <div class="node-title" contenteditable="true">Void Model</div>
+      <div class="node-link">
+        <span class="node-link-ico" aria-hidden="true">↗</span>
+        <span class="node-link-url" contenteditable="true" data-placeholder="git / 링크 주소 입력...">https://github.com/netflix/void-model</span>
+        <a class="node-link-go hidden" target="_blank" rel="noopener" title="새 탭에서 열기">열기</a>
+      </div>
+      <div class="node-tagline" contenteditable="true">Netflix · production-grade matting/removal</div>
+      <ul class="sub-list">
+        <li class="plus" contenteditable="true">Netflix 프로덕션 검증, 영상 안정성 확보</li>
+        <li class="minus" contenteditable="true">객체 제거보다 matting 중심</li>
+      </ul>
+      <div class="verdict empty" contenteditable="true" data-placeholder="검토 의견 입력...">미검증.</div>
+      <div class="media-gallery" data-gallery="void-model">
+        <button class="media-add" type="button"><span class="ico">+</span>미디어 링크 추가</button>
+      </div>
+    </div>
+
+    <button class="add-node-btn" onclick="addNode(this, 'erase')">+ 모델 추가</button>
+  </div>
+
+  <!-- ============ Motion Generation AI ============ -->
+  <div class="branch motion">
+    <div class="branch-head" contenteditable="true">
+      모션 생성 AI
+      <span class="kicker">3 경로 · 출력 BVH/FBX → MetaHuman</span>
+    </div>
+
+    <div class="node">
+      <div class="node-controls">
+        <span class="drag-handle" title="드래그하여 순서 변경" aria-hidden="true">⠿</span>
+        <select class="status-select" title="상태 라벨" onclick="event.stopPropagation()"><option value="none" selected>— 없음</option><option value="sota">★ SOTA</option><option value="partial">△ 제한적</option><option value="unverified">○ 미검증</option><option value="failed">× 실패</option></select>
+      </div>
+      <div class="node-title" contenteditable="true">Kimodo</div>
+      <div class="node-link">
+        <span class="node-link-ico" aria-hidden="true">↗</span>
+        <span class="node-link-url" contenteditable="true" data-placeholder="git / 링크 주소 입력..."></span>
+        <a class="node-link-go hidden" target="_blank" rel="noopener" title="새 탭에서 열기">열기</a>
+      </div>
+      <div class="node-tagline" contenteditable="true">NVIDIA · 텍스트 프롬프트 → 모션 (HumanIK 본)</div>
+      <ul class="sub-list">
+        <li class="plus" contenteditable="true">텍스트 입력으로 1시간 내 BVH 생성, 모션 자연도 양호</li>
+        <li class="minus" contenteditable="true">I-pose 출력으로 MetaHuman A-pose와 약 60° rest 갭</li>
+        <li class="minus" contenteditable="true">무료 솔루션(Blender + Rokoko) 리타게팅 수렴 실패</li>
+      </ul>
+      <div class="verdict" contenteditable="true">모션 생성 자체는 양호하나 리타게팅이 블로커. 상세 분석은 하단 「리타게팅 분석」 참조.</div>
+      <div class="media-gallery" data-gallery="kimodo">
+        <button class="media-add" type="button"><span class="ico">+</span>미디어 링크 추가</button>
+      </div>
+    </div>
+
+    <div class="node">
+      <div class="node-controls">
+        <span class="drag-handle" title="드래그하여 순서 변경" aria-hidden="true">⠿</span>
+        <select class="status-select" title="상태 라벨" onclick="event.stopPropagation()"><option value="none" selected>— 없음</option><option value="sota">★ SOTA</option><option value="partial">△ 제한적</option><option value="unverified">○ 미검증</option><option value="failed">× 실패</option></select>
+      </div>
+      <div class="node-title" contenteditable="true">PromptHMR</div>
+      <div class="node-link">
+        <span class="node-link-ico" aria-hidden="true">↗</span>
+        <span class="node-link-url" contenteditable="true" data-placeholder="git / 링크 주소 입력..."></span>
+        <a class="node-link-go hidden" target="_blank" rel="noopener" title="새 탭에서 열기">열기</a>
+      </div>
+      <div class="node-tagline" contenteditable="true">실사 영상 → SMPL 24-joint</div>
+      <ul class="sub-list">
+        <li class="plus" contenteditable="true">정적 카메라 환경에서 단일 인물 정확도 높음</li>
+        <li class="plus" contenteditable="true">RTX 4090 24GB에서 1시간 내 처리 (영상 30초 기준)</li>
+        <li class="minus" contenteditable="true">동적 카메라 시 root translation 부정확, 다중 인물 트랙 불안정</li>
+        <li class="minus" contenteditable="true">ground contact 모델 없음 — 발 미끄러짐 가능</li>
+      </ul>
+      <div class="verdict" contenteditable="true">정적 카메라용으로 적합. SMPL → MetaHuman 리타게팅 필요(약 30° 갭).</div>
+      <div class="media-gallery" data-gallery="prompthmr">
+        <button class="media-add" type="button"><span class="ico">+</span>미디어 링크 추가</button>
+      </div>
+    </div>
+
+    <div class="node">
+      <div class="node-controls">
+        <span class="drag-handle" title="드래그하여 순서 변경" aria-hidden="true">⠿</span>
+        <select class="status-select" title="상태 라벨" onclick="event.stopPropagation()"><option value="none" selected>— 없음</option><option value="sota">★ SOTA</option><option value="partial">△ 제한적</option><option value="unverified">○ 미검증</option><option value="failed">× 실패</option></select>
+      </div>
+      <div class="node-title" contenteditable="true">GVHMR</div>
+      <div class="node-link">
+        <span class="node-link-ico" aria-hidden="true">↗</span>
+        <span class="node-link-url" contenteditable="true" data-placeholder="git / 링크 주소 입력..."></span>
+        <a class="node-link-go hidden" target="_blank" rel="noopener" title="새 탭에서 열기">열기</a>
+      </div>
+      <div class="node-tagline" contenteditable="true">gravity-view aware · 실사 영상 → SMPL</div>
+      <ul class="sub-list">
+        <li class="plus" contenteditable="true">중력 방향 인식으로 panning 영상에서도 root translation 안정</li>
+        <li class="plus" contenteditable="true">ground contact 모델 보유 (발 미끄러짐 완화)</li>
+        <li class="minus" contenteditable="true">다중 인물 처리에 취약</li>
+      </ul>
+      <div class="verdict" contenteditable="true">동적 카메라용으로 적합. 정적은 PromptHMR, 동적은 GVHMR로 혼합 운용 권장.</div>
+      <div class="media-gallery" data-gallery="gvhmr">
+        <button class="media-add" type="button"><span class="ico">+</span>미디어 링크 추가</button>
+      </div>
+    </div>
+
+    <div class="node unverified">
+      <div class="node-controls">
+        <span class="drag-handle" title="드래그하여 순서 변경" aria-hidden="true">⠿</span>
+        <select class="status-select" title="상태 라벨" onclick="event.stopPropagation()"><option value="none">— 없음</option><option value="sota">★ SOTA</option><option value="partial">△ 제한적</option><option value="unverified" selected>○ 미검증</option><option value="failed">× 실패</option></select>
+      </div>
+      <div class="node-title" contenteditable="true">Mocap Suit</div>
+      <div class="node-link">
+        <span class="node-link-ico" aria-hidden="true">↗</span>
+        <span class="node-link-url" contenteditable="true" data-placeholder="git / 링크 주소 입력..."></span>
+        <a class="node-link-go hidden" target="_blank" rel="noopener" title="새 탭에서 열기">열기</a>
+      </div>
+      <div class="node-tagline" contenteditable="true">직접 캡쳐 (OptiTrack / Vicon / Rokoko / Xsens)</div>
+      <ul class="sub-list">
+        <li class="plus" contenteditable="true">대부분 HumanIK 호환, T-pose 캘리브레이션 표준으로 리타게팅 경로 최단</li>
+        <li class="warn" contenteditable="true">미시도 — AI 경로 검증 시 불필요할 수 있어 안전 백업으로 보류</li>
+      </ul>
+      <div class="verdict empty" contenteditable="true" data-placeholder="검토 의견 입력...">미시도. 보류 (안전 백업).</div>
+      <div class="media-gallery" data-gallery="mocap-suit">
+        <button class="media-add" type="button"><span class="ico">+</span>미디어 링크 추가</button>
+      </div>
+    </div>
+
+    <button class="add-node-btn" onclick="addNode(this, 'motion')">+ 모델 추가</button>
+  </div>
+
 </div>
 
-<!-- Sticky: 전체 SOTA 요약 -->
+<!-- Sticky: overall SOTA summary -->
 <div class="summary">
-  <h3 contenteditable="true">★ 전체 SOTA 요약</h3>
+  <h3 contenteditable="true">SOTA 종합 요약</h3>
+  <div class="summary-row">
+    <div class="cat" contenteditable="true">Gaussian Splatting</div>
+    <div class="sota-name" contenteditable="true">검증 진행 중</div>
+    <div contenteditable="true">환경 전체 스캔의 단기 SOTA는 부재. G4Splat은 OOM, Hunyuan World 2.0은 해상도 한계. Sana WM 검증 예정.</div>
+  </div>
+  <div class="summary-row">
+    <div class="cat" contenteditable="true">3D 오브젝트 생성</div>
+    <div class="sota-name" contenteditable="true">Pixel3D · R-by-G</div>
+    <div contenteditable="true">단일 이미지는 Pixel3D, 다중 뷰는 Reconstruction-by-Generation. UV는 traditional 후처리 필수.</div>
+  </div>
   <div class="summary-row">
     <div class="cat" contenteditable="true">객체 지우기</div>
     <div class="sota-name" contenteditable="true">EffectErase</div>
-    <div contenteditable="true">잔영/temporal 안정. 영상 inpaint 영역 가장 깔끔.</div>
+    <div contenteditable="true">그림자·반사까지 effect 단위로 제거, temporal 안정성 우수.</div>
   </div>
   <div class="summary-row">
-    <div class="cat" contenteditable="true">Gaussian Splatting</div>
-    <div class="sota-name" contenteditable="true">Reconstruction-by-Generation</div>
-    <div contenteditable="true">실사용 안정. 가우시안 출력 → UE 호환. (HY-World 해상도↓, G4Splat 실용↓)</div>
-  </div>
-  <div class="summary-row">
-    <div class="cat" contenteditable="true">3D 생성</div>
-    <div class="sota-name" contenteditable="true">Pixel3D</div>
-    <div contenteditable="true">메쉬 디테일·토폴로지 최고. UV 는 traditional 후처리 필요.</div>
+    <div class="cat" contenteditable="true">모션 생성 AI</div>
+    <div class="sota-name" contenteditable="true">검증 진행 중</div>
+    <div contenteditable="true">PromptHMR·GVHMR로 영상 → 모션 추출 가능. 단, MetaHuman 리타게팅이 공통 블로커 — UE IK Retargeter 검증 예정.</div>
   </div>
 </div>
 
-<!-- Sticky: 다음 액션 -->
+<!-- Sticky: next actions -->
 <div class="actions">
-  <h3 contenteditable="true">✓ 다음 R&D 액션</h3>
+  <h3 contenteditable="true">차기 R&amp;D 액션</h3>
+  <span class="group-label" contenteditable="true">즉시 (다음 1주)</span>
   <ul>
-    <li contenteditable="true">Sana WM 검증 — 가우시안 카테고리 미평가 후보</li>
+    <li contenteditable="true">UE IK Retargeter 검증 — Kimodo·PromptHMR 각 1회, MetaHuman 호환 AnimSequence 산출 및 평가 리포트 작성</li>
+    <li contenteditable="true">Sana WM 환경 셋업 및 검증 — G4Splat 동일 데이터로 성공률·품질 비교</li>
     <li contenteditable="true">Reconstruction-by-Generation → UE 임포트 워크플로 PoC</li>
-    <li contenteditable="true">Pixel3D + xatlas + retopo 자동화 스크립트</li>
-    <li contenteditable="true">EffectErase 를 촬영 본편 정리 단계에 통합</li>
-    <li contenteditable="true">HY-World 2.0 의 해상도 한계 — tile/upscale 후처리 시도</li>
-    <li contenteditable="true">G4Splat 다음 시도: bruiiii/See3D 다운로드 + densify hyperparam 조정</li>
+    <li contenteditable="true">EffectErase 촬영 본편 정리 케이스 1건 적용 — 현장 적합성 확인</li>
+  </ul>
+  <span class="group-label" contenteditable="true">단기 (2~4주)</span>
+  <ul>
+    <li contenteditable="true">Pixel3D + xatlas + retopo 자동화 스크립트 작성</li>
+    <li contenteditable="true">G4Splat densify hyperparam 패치 + See3D weights 사전 업로드 후 재시도</li>
+    <li contenteditable="true">Hunyuan World 2.0 tile/upscale 후처리 PoC</li>
+  </ul>
+  <span class="group-label" contenteditable="true">의사결정 / 인프라</span>
+  <ul>
+    <li contenteditable="true">GPU 인프라 결정 — A100 80GB / RTX 6000 Ada / H100 80GB 견적 비교 및 RunPod 표준화 여부</li>
+    <li contenteditable="true">MotionBuilder 라이선스 견적·검토 — UE IK Retargeter 검증 결과에 따라 도입 여부 결정</li>
   </ul>
 </div>
 
-<!-- Sticky: G4Splat 디버그 보고서 -->
-<div class="debug-report" id="debug-report">
-  <h3 contenteditable="true">🔬 G4Splat 디버그 보고서</h3>
+<!-- Sticky: G4Splat debug analysis -->
+<div class="report-box debug-report" id="debug-report">
+  <h3 contenteditable="true">G4Splat 디버그 분석</h3>
   <div class="dr-subtitle" contenteditable="true">
-    야간 RunPod 실험 (4영상 × A100 80GB) — 1개 성공 / 3개 실패 원인 분석
+    야간 RunPod 실험 (4클립 × A100 80GB) — 1클립 성공 / 3클립 실패 원인 분석
   </div>
 
-  <h4><span class="icon">📍</span><span contenteditable="true">정확히 어디서 죽었나</span></h4>
-  <p contenteditable="true">G4Splat 의 전체 학습은 <strong>4 stage</strong>로 구성됨. ver_2/3/4 가 죽은 위치는 <strong>모두 Stage 1 (첫 학습) 의 초반</strong>이고, Stage 2~4 는 시작도 못 함.</p>
+  <h4 contenteditable="true">실패 발생 지점</h4>
+  <p contenteditable="true">G4Splat의 전체 학습은 <strong>4 stage</strong>로 구성됨. ver_2/3/4가 중단된 위치는 <strong>모두 Stage 1(첫 학습)의 초반</strong>이며, Stage 2~4는 진입하지 못함.</p>
 
   <div class="stage-flow">
     <div class="lbl">Stage 0</div>
-    <div class="line ok" contenteditable="true">✅ MASt3R SfM → align_charts → render_chart_views → plane_excavator → plane_refine_depth — 전부 통과</div>
+    <div class="line ok" contenteditable="true">통과 — MASt3R SfM → align_charts → render_chart_views → plane_excavator → plane_refine_depth</div>
 
     <div class="lbl">Stage 1</div>
-    <div class="line fail" contenteditable="true">❌ <code>refine_free_gaussians.py</code> → <code>train_with_refine_depth.py:560</code> → <code>gaussian_model.py:633 densify_and_prune</code> → <code>densify_and_split</code> 에서 OOM (ver_2/3 의 경우 600 iter 시점, ver_4 는 0 iter 의 optimizer.step() 즉시 죽음)</div>
+    <div class="line fail" contenteditable="true">OOM — <code>refine_free_gaussians.py</code> → <code>train_with_refine_depth.py:560</code> → <code>gaussian_model.py:633 densify_and_prune</code> → <code>densify_and_split</code>에서 메모리 초과 (ver_2/3은 600 iter 시점, ver_4는 0 iter optimizer.step() 직후)</div>
 
     <div class="lbl">Stage 2</div>
-    <div class="line skip" contenteditable="true">⏸ see3d_inpaint #1 + 2차 학습 — 도달 못 함 (또한 See3D weights 도 없어서 어차피 실패할 단계)</div>
+    <div class="line skip" contenteditable="true">미도달 — see3d_inpaint #1 + 2차 학습 (See3D weights 부재로 어차피 실패할 단계)</div>
 
     <div class="lbl">Stage 3</div>
-    <div class="line skip" contenteditable="true">⏸ see3d_inpaint #2 + 3차 학습</div>
+    <div class="line skip" contenteditable="true">미도달 — see3d_inpaint #2 + 3차 학습</div>
 
     <div class="lbl">Stage 4</div>
-    <div class="line skip" contenteditable="true">⏸ see3d_inpaint #3 + 4차 학습 + mesh extract</div>
+    <div class="line skip" contenteditable="true">미도달 — see3d_inpaint #3 + 4차 학습 + mesh extract</div>
   </div>
 
-  <h4><span class="icon">📊</span><span contenteditable="true">점 수 폭증 데이터 (가우시안 개수 추적)</span></h4>
+  <h4 contenteditable="true">가우시안 점 수 폭증 추적</h4>
   <table class="dr-table">
     <thead>
       <tr>
@@ -849,61 +1372,59 @@
       <tr>
         <td>SfM <code>points.ply</code></td>
         <td>1.5M pts (38MB)</td>
-        <td><em>모름 (다운로드 전 죽음)</em></td>
-        <td contenteditable="true">시작 SfM 점 수가 영상마다 다름</td>
+        <td><em>미상 (다운로드 전 중단)</em></td>
+        <td contenteditable="true">시작 SfM 점 수가 영상마다 상이</td>
       </tr>
       <tr>
         <td><code>input.ply</code> (학습 시작)</td>
         <td>1.5M pts</td>
-        <td><em>아마 더 컸을 듯</em></td>
-        <td contenteditable="true">SfM 결과를 그대로 학습 input 으로 사용</td>
+        <td><em>더 컸을 가능성 높음</em></td>
+        <td contenteditable="true">SfM 결과를 그대로 학습 input으로 사용</td>
       </tr>
       <tr>
         <td>iter 600 (densify 중)</td>
         <td class="ok">26.5M pts</td>
         <td class="fail">45.4M pts (1.7×)</td>
-        <td contenteditable="true">ver_2 가 동일 시점 1.7배 더 dense → 폭증</td>
+        <td contenteditable="true">동일 시점 ver_2가 1.7배 dense → 폭증</td>
       </tr>
       <tr>
-        <td>iter 7000 (학습 끝)</td>
+        <td>iter 7000 (학습 종료)</td>
         <td class="ok">2.3M pts (안정)</td>
-        <td class="fail">— (죽음)</td>
-        <td contenteditable="true">ver_1 은 prune 으로 정리됨</td>
+        <td class="fail">— (중단)</td>
+        <td contenteditable="true">ver_1은 prune으로 정리됨</td>
       </tr>
     </tbody>
   </table>
 
-  <h4><span class="icon">🔑</span><span contenteditable="true">근본 원인 (Root Cause)</span></h4>
+  <h4 contenteditable="true">근본 원인 (Root Cause)</h4>
   <ol>
-    <li contenteditable="true"><strong>SfM 단계 점 수가 영상마다 천차만별</strong> — ver_2/3/4 영상의 텍스처가 ver_1 보다 풍부(또는 노이즈)해서 더 많은 매칭점 생성</li>
-    <li contenteditable="true"><strong>G4Splat default densify hyperparam 이 우리 데이터에 너무 공격적</strong>:
+    <li contenteditable="true"><strong>SfM 단계 점 수가 영상마다 상이</strong> — ver_2/3/4 영상의 텍스처가 ver_1보다 풍부(또는 노이즈)하여 MASt3R가 더 많은 매칭점을 생성함.</li>
+    <li contenteditable="true"><strong>G4Splat의 default densify hyperparam이 자체 데이터에 과도하게 공격적</strong>:
       <ul>
-        <li><code>densify_grad_threshold = 0.0002</code> ← 너무 낮음 (clone/split 자주 발생)</li>
-        <li><code>densify_until_iter = 3500</code> + <code>densification_interval = 100</code> → 매 학습마다 30번 densify 호출</li>
+        <li><code>densify_grad_threshold = 0.0002</code> — 임계값이 낮아 clone/split이 빈번하게 발생</li>
+        <li><code>densify_until_iter = 3500</code> + <code>densification_interval = 100</code> → 학습당 약 30회 densify 호출</li>
       </ul>
     </li>
     <li contenteditable="true"><strong>점 폭증 메커니즘</strong>:
       <ul>
-        <li><code>densify_and_clone</code>: grad 큰 작은 점 복제 (1→1)</li>
-        <li><code>densify_and_split</code>: grad 큰 큰 점 분할 (1→2)</li>
-        <li>opacity_reset 으로 정리하지만, 그보다 빠르게 점 증가 → A100 80GB 도 못 견딤</li>
+        <li><code>densify_and_clone</code>: grad가 큰 작은 점 복제 (1→1)</li>
+        <li><code>densify_and_split</code>: grad가 큰 큰 점 분할 (1→2)</li>
+        <li>opacity_reset으로 정리되나 점 증가 속도가 이를 상회 → A100 80GB도 한계 초과</li>
       </ul>
     </li>
   </ol>
 
-  <h4><span class="icon">🧬</span><span contenteditable="true">왜 데모는 잘 되는데 우리는 안 되나</span></h4>
+  <h4 contenteditable="true">데모 데이터 vs 자체 데이터</h4>
   <div class="callout" contenteditable="true">
-    <strong>데모 영상</strong>은 ScanNet++/Replica 같은 <em>이상적 데이터</em>: 정적 씬, orbit 카메라 동선, 균일 조명, 수동 노출/초점 고정, 반복 텍스처 없음.
-    <strong>우리 영상</strong>은 1080p 30fps 핸드폰 영상: panning 동선, 자동 노출/AF, 모션 블러, 반복 패턴 가능성.
-    G4Splat 의 MASt3R SfM 이 후자의 데이터 분포에 약함 → 잘못된 매칭 → 점 폭증 → OOM.
-    <strong>너 잘못 아님 — 가우시안 분야 공통의 데이터-품질 의존성 문제.</strong>
+    <strong>데모 영상</strong>은 ScanNet++/Replica 등 이상적 데이터로, 정적 씬·orbit 카메라 동선·균일 조명·수동 노출/초점 고정·반복 텍스처 부재 조건을 갖춤.
+    <strong>자체 영상</strong>은 1080p 30fps 핸드폰 영상으로 panning 동선·자동 노출/AF·모션 블러·반복 패턴 가능성을 포함함.
+    G4Splat의 MASt3R SfM이 후자의 데이터 분포에 취약하여 잘못된 매칭 → 점 폭증 → OOM으로 이어짐.
+    <strong>스튜디오 설정 오류가 아니라 가우시안 분야 공통의 데이터-품질 의존성 문제임.</strong>
   </div>
 
-  <h4><span class="icon">📦</span><span contenteditable="true">See3D 가 왜 안 돌아간 거야?</span></h4>
+  <h4 contenteditable="true">See3D weights 부재 (별개 이슈)</h4>
   <p contenteditable="true">
-    <strong>완전 별개의 문제</strong> (OOM 이전에 우리가 못 풀었던 것).
-    G4Splat README 가 See3D 의 정확한 HuggingFace 위치를 <strong>안 적어둠</strong>.
-    저자가 자기 개인 계정에 올렸기 때문 → 누구도 추측 불가.
+    OOM과 무관한 별개의 문제임. G4Splat README가 See3D의 정확한 HuggingFace 위치를 명시하지 않았으며, 저자가 개인 계정(bruiiii/See3D)에 업로드하여 위치 추정이 불가했음.
   </p>
   <table class="dr-table">
     <thead>
@@ -918,226 +1439,464 @@
       <tr><td><code>BAAI-DCAI/See3D</code></td><td class="fail">401 Repository Not Found</td></tr>
       <tr><td><code>Stable-X/See3D</code></td><td class="fail">401 Repository Not Found</td></tr>
       <tr><td><code>baaivision/See3D</code></td><td class="fail">401 Repository Not Found</td></tr>
-      <tr><td><strong><code>bruiiii/See3D</code> ← 진짜 위치</strong></td><td class="ok">✓ public (저자 개인 계정)</td></tr>
+      <tr><td><strong><code>bruiiii/See3D</code> (실제 위치)</strong></td><td class="ok">public (저자 개인 계정)</td></tr>
     </tbody>
   </table>
   <div class="callout" contenteditable="true">
-    <strong>주의</strong>: 우리 로컬 WSL 의 <code>/home/vp/G4Splat/checkpoint/MVD_weights/</code> 에 이미 6.9GB 가 있음 (예전에 받아둔 것). <code>model_index.json</code> 의 <code>MVDreamPipeline</code> 클래스 — 진짜 See3D weights 일 가능성 매우 높음. <strong>다음 RunPod 시도 시 그것만 업로드하면 됨</strong> (~18분, 가정용 50Mbps 기준).
+    <strong>참고</strong>: 로컬 WSL <code>/home/vp/G4Splat/checkpoint/MVD_weights/</code>에 6.9GB가 이미 존재함(이전 다운로드분). <code>model_index.json</code>의 <code>MVDreamPipeline</code> 클래스로 보아 실제 See3D weights일 가능성이 높음. 차기 RunPod 시도 시 해당 파일만 업로드하면 됨 (약 18분, 50Mbps 기준).
   </div>
 
-  <h4><span class="icon">⚠</span><span contenteditable="true">OOM vs See3D 부재 — 별개 문제</span></h4>
+  <h4 contenteditable="true">영상별 중단 지점 정리</h4>
   <table class="dr-table">
     <thead>
-      <tr><th>영상</th><th>Stage 1 학습</th><th>See3D 단계</th><th>진짜 막힌 곳</th></tr>
+      <tr><th>영상</th><th>Stage 1 학습</th><th>See3D 단계</th><th>실제 중단 지점</th></tr>
     </thead>
     <tbody>
-      <tr><td>ver_1</td><td class="ok">✓ 7000 iter 완주</td><td class="fail">× weights 없음</td><td>See3D 부재 (PLY 는 회수)</td></tr>
-      <tr><td>ver_2</td><td class="fail">× 600 iter OOM</td><td class="skip">⏸ 도달 못 함</td><td>OOM</td></tr>
-      <tr><td>ver_3</td><td class="fail">× 600 iter 부근 OOM</td><td class="skip">⏸</td><td>OOM</td></tr>
-      <tr><td>ver_4</td><td class="fail">× 0 iter illegal access</td><td class="skip">⏸</td><td>OOM (input.ply 너무 큼)</td></tr>
+      <tr><td>ver_1</td><td class="ok">7000 iter 완주</td><td class="fail">weights 부재</td><td>See3D 부재 (PLY는 회수)</td></tr>
+      <tr><td>ver_2</td><td class="fail">600 iter OOM</td><td class="skip">미도달</td><td>OOM</td></tr>
+      <tr><td>ver_3</td><td class="fail">600 iter 부근 OOM</td><td class="skip">미도달</td><td>OOM</td></tr>
+      <tr><td>ver_4</td><td class="fail">0 iter illegal access</td><td class="skip">미도달</td><td>OOM (input.ply 과대)</td></tr>
     </tbody>
   </table>
-  <p contenteditable="true">→ See3D 가 있었어도 ver_2/3/4 는 <strong>어차피 못 끝났음</strong>. See3D 가 결과에 영향 미친 건 ver_1 뿐.</p>
+  <p contenteditable="true">See3D weights가 있었더라도 ver_2/3/4는 OOM으로 완주하지 못했을 것임. See3D 부재가 결과에 영향을 미친 것은 ver_1에 한정됨.</p>
 
-  <h4><span class="icon">🛠</span><span contenteditable="true">다음 시도 시 적용할 fix (우선순위 순)</span></h4>
+  <h4 contenteditable="true">차기 시도 시 적용할 수정 (우선순위 순)</h4>
   <ol>
-    <li contenteditable="true"><strong>See3D weights 사전 업로드</strong> — 로컬 WSL 의 <code>MVD_weights/</code> 6.9GB 를 rsync 로 RunPod 에 미리 올림 (또는 <code>huggingface-cli download bruiiii/See3D</code> 시도)</li>
-    <li contenteditable="true"><strong>densify hyperparam 조정</strong> — train.py 인자에 <code>--densify_grad_threshold 0.0005 --densify_until_iter 1500 --opacity_cull 0.1</code> 전달되도록 <code>refine_free_gaussians.py</code> 패치</li>
-    <li contenteditable="true"><strong>SfM 단계 결과 점 수 검증</strong> — 학습 시작 전 <code>output/<NAME>/mast3r_sfm/points.ply</code> 의 vertex count 가 ver_1 (1.5M) 보다 크게 많으면 input downsample 적용 또는 다른 영상으로 전환</li>
-    <li contenteditable="true"><strong>촬영 다시</strong> — orbit shot, 수동 AE/AF 잠금, 반복 텍스처 피함, 20~50장 분량의 균일 baseline</li>
-    <li contenteditable="true"><strong>G4Splat 포기 옵션</strong> — Reconstruction-by-Generation 으로 전환. generative prior 덕분에 입력 부족함을 자동 보강 → 우리 데이터에 robust</li>
+    <li contenteditable="true"><strong>See3D weights 사전 업로드</strong> — 로컬 WSL의 <code>MVD_weights/</code> 6.9GB를 rsync로 RunPod에 사전 전송 (또는 <code>huggingface-cli download bruiiii/See3D</code>)</li>
+    <li contenteditable="true"><strong>densify hyperparam 조정</strong> — <code>refine_free_gaussians.py</code>를 패치하여 <code>--densify_grad_threshold 0.0005 --densify_until_iter 1500 --opacity_cull 0.1</code> 전달</li>
+    <li contenteditable="true"><strong>SfM 결과 점 수 검증</strong> — 학습 시작 전 <code>output/&lt;NAME&gt;/mast3r_sfm/points.ply</code>의 vertex count가 ver_1(1.5M)보다 크게 많으면 input downsample 적용 또는 영상 교체</li>
+    <li contenteditable="true"><strong>재촬영</strong> — orbit shot, 수동 AE/AF 잠금, 반복 텍스처 회피, 20~50장 분량의 균일 baseline 확보</li>
+    <li contenteditable="true"><strong>대안 전환</strong> — Reconstruction-by-Generation 검토 (단, 환경 전체 스캔 용도가 아님에 유의)</li>
+  </ol>
+</div>
+
+<!-- Sticky: retargeting analysis (motion) -->
+<div class="report-box retarget-report" id="retarget-report">
+  <h3 contenteditable="true">리타게팅 분석 (모션 → MetaHuman)</h3>
+  <div class="dr-subtitle" contenteditable="true">
+    AI 모션 출력(Kimodo·PromptHMR·GVHMR)의 공통 블로커 — source skeleton → MetaHuman body 적용 단계 분석
+  </div>
+
+  <h4 contenteditable="true">문제 정의</h4>
+  <p contenteditable="true">source skeleton(SMPL/HumanIK/Kimodo)의 모션을 target skeleton(MetaHuman body)에 적용하는 단계. 본의 의미가 매칭되더라도 다음 차이로 인해 정합이 어긋남: rest pose 차이(회전 delta 어긋남), 본 roll 차이(twist 어긋남), 본 길이 차이(IK 보정 필요), 축 컨벤션 차이(forward 방향 반전 등). 슈트 캡쳐(FBX)만 이 단계를 우회할 수 있음.</p>
+
+  <h4 contenteditable="true">Rest pose 갭</h4>
+  <table class="dr-table">
+    <thead>
+      <tr><th>자세</th><th>어깨 → 손 각도</th><th>사용 도구</th><th>MH 대비 갭</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>T-pose</td><td>0° (수평)</td><td>SMPL · 일부 mocap</td><td>—</td></tr>
+      <tr><td>SMPL 출력</td><td>약 15° 아래</td><td>PromptHMR · GVHMR</td><td class="ok">약 30°</td></tr>
+      <tr><td>A-pose (기준)</td><td>약 45° 아래</td><td>MetaHuman</td><td>0°</td></tr>
+      <tr><td>I-pose</td><td>약 75° 아래 (거의 수직)</td><td>Kimodo</td><td class="fail">약 60°</td></tr>
+    </tbody>
+  </table>
+  <p contenteditable="true">갭이 클수록 자동 정합이 어려움. SMPL → MH는 약 30°, Kimodo → MH는 약 60°.</p>
+
+  <h4 contenteditable="true">시도한 워크플로 (Blender + Rokoko + Python)</h4>
+  <ol>
+    <li contenteditable="true">Source BVH(SMPL/HumanIK) + Target MH body FBX 임포트</li>
+    <li contenteditable="true">Python 스크립트로 본 페어 22개 자동 매핑 (case-insensitive)</li>
+    <li contenteditable="true">Rokoko rest pose 보정 옵션 활성화 + Copy Rotation(WORLD) constraint + Apply Pose as Rest</li>
+    <li contenteditable="true">Source axis flip(180° yaw) 적용 후 <code>bpy.ops.rsl.retarget_animation()</code> 베이크</li>
+    <li contenteditable="true">2차 Bake Action(Visual Keying + Clear Constraints)으로 잔여 constraint 제거 → FBX export → UE 임포트</li>
   </ol>
 
-  <h4><span class="icon">📁</span><span contenteditable="true">관련 파일 경로</span></h4>
+  <h4 contenteditable="true">실패 원인</h4>
   <ul>
-    <li contenteditable="true">G4Splat 코드: <code>github.com/DaLi-Jack/G4Splat</code></li>
-    <li contenteditable="true">See3D 진짜 위치: <code>huggingface.co/bruiiii/See3D</code></li>
-    <li contenteditable="true">See3D GitHub: <code>github.com/baaivision/See3D</code> (코드만, weights link 는 README 확인)</li>
-    <li contenteditable="true">우리 로컬 weights: <code>\\wsl.localhost\Ubuntu-22.04\home\vp\G4Splat\checkpoint\MVD_weights\</code></li>
-    <li contenteditable="true">어제 학습 성공 결과: <code>\\wsl.localhost\Ubuntu-22.04\home\vp\G4Splat\output\remove_ver_1_runpod\free_gaussians\point_cloud\iteration_7000\point_cloud.ply</code> (579 MB)</li>
-    <li contenteditable="true">야간 자동화 보고서: <code>\\wsl.localhost\Ubuntu-22.04\home\vp\G4Splat\_runpod\state\FINAL_REPORT.md</code></li>
+    <li contenteditable="true">본 roll(twist axis)이 두 스켈레톤 간 상이 → world rotation을 매치해도 local twist가 어긋남</li>
+    <li contenteditable="true">부모 본 회전 적용 시 자식 본 visual 위치가 변동 → 자식 본 정합이 재차 어긋남 (체인 누적 오차)</li>
+    <li contenteditable="true">MH의 twist·correction 본을 매핑하지 않아 rest에 남는데, parent rest 변경 시 visual 결과가 왜곡됨</li>
+    <li contenteditable="true">매 alignment 후 다른 부위가 어긋나 수렴하지 않음</li>
   </ul>
+
+  <div class="callout" contenteditable="true">
+    <strong>결론</strong>: 무료 Blender 솔루션으로 SMPL(약 15° 갭)은 부분적으로 동작하나, Kimodo(약 60° 갭)는 수렴 불가. 본 roll·축 컨벤션 차이가 누적되어 무료 자동화 경로로는 한계가 명확함.
+  </div>
+
+  <h4 contenteditable="true">권장 리타게팅 경로</h4>
+  <table class="dr-table">
+    <thead>
+      <tr><th>도구</th><th>rest 갭 처리</th><th>비용</th><th>우선순위</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>UE IK Retargeter</td><td class="ok">Edit Pose UI (시각적 정합)</td><td>무료 (UE)</td><td class="ok">1순위 (도착지가 UE)</td></tr>
+      <tr><td>MotionBuilder + HumanIK</td><td class="ok">Characterize 자동</td><td>유료 (Autodesk)</td><td>2순위 (업계 표준)</td></tr>
+      <tr><td>Auto-Rig Pro (Blender)</td><td class="ok">Match Source</td><td>유료 (약 $40)</td><td class="skip">보조</td></tr>
+      <tr><td>Blender + Rokoko</td><td class="fail">수동</td><td>무료</td><td class="skip">검증 종료</td></tr>
+    </tbody>
+  </table>
+
+  <h4 contenteditable="true">본 매핑 요약 (Source → MetaHuman 5.5+)</h4>
+  <table class="dr-table">
+    <thead>
+      <tr><th>부위</th><th>SMPL 24-joint</th><th>Kimodo (HumanIK)</th><th>MetaHuman</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Pelvis</td><td>pelvis</td><td>Hips</td><td>pelvis</td></tr>
+      <tr><td>Spine</td><td>spine1/2/3</td><td>Spine1/2/Chest</td><td>spine_01/03/05</td></tr>
+      <tr><td>Shoulder</td><td>left_collar</td><td>LeftShoulder</td><td>clavicle_l</td></tr>
+      <tr><td>UpperArm</td><td>left_shoulder</td><td>LeftArm</td><td>upperarm_l</td></tr>
+      <tr><td>Calf</td><td>left_knee</td><td>LeftShin</td><td>calf_l</td></tr>
+      <tr><td>Foot</td><td>left_ankle</td><td>LeftFoot</td><td>foot_l</td></tr>
+    </tbody>
+  </table>
+  <div class="callout" contenteditable="true">
+    <strong>주의</strong>: Kimodo 네이밍은 <code>LeftLeg</code>가 허벅지, <code>LeftShin</code>이 종아리로, 일반 HumanIK의 <code>LeftUpLeg/LeftLeg</code> 패턴과 반대임. 또한 MH의 <code>spine_02</code>·<code>spine_04</code>와 twist/correction 본은 매핑하지 않고 rest로 유지함.
+  </div>
 </div>
 
 </div>
 
 <script>
-const STORAGE_KEY = 'ai-sota-mindmap-v1';
-const saveStatus = document.getElementById('save-status');
-let saveTimer;
+// ===== CONFIG: fill these with your Supabase project values =====
+// Leave both empty to fall back to this browser's localStorage (solo/local test).
+const SUPABASE_URL = 'https://gldbefpctwusmlxntgbg.supabase.co';        // e.g. https://xxxxxxxx.supabase.co
+const SUPABASE_ANON_KEY = 'sb_publishable_cLHNwua7cWXxhCW3ahKSUg_U2MTy3JC';   // project anon public key
+const DOC_ID = 'main';
+// ================================================================
 
-// ============ 저장/불러오기 ============
-function save() {
-  const data = {
-    html: document.getElementById('map').innerHTML,
+const STORAGE_KEY = 'ai-sota-mindmap-v5';
+const saveStatus = document.getElementById('save-status');
+const editBtn = document.getElementById('edit-btn');
+let saveTimer;
+let editing = false;
+
+const cloud = !!(SUPABASE_URL && SUPABASE_ANON_KEY);
+let db = null;
+if (cloud && window.supabase) {
+  db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
+
+const STATUS_CLASSES = ['sota', 'partial', 'unverified', 'failed'];
+const wiredNodes = new WeakSet();
+const wiredBranches = new WeakSet();
+const wiredGalleries = new WeakSet();
+const wiredItems = new WeakSet();
+let draggingNode = null;
+let uidCounter = 0;
+function uid() { return Date.now().toString(36) + (uidCounter++).toString(36); }
+
+// ============ State (de)serialize ============
+function serializeMapHtml() {
+  const clone = document.getElementById('map').cloneNode(true);
+  clone.querySelectorAll('.node').forEach(n => {
+    n.classList.remove('dragging');
+    n.removeAttribute('draggable');
+  });
+  return clone.innerHTML;
+}
+
+function collectState() {
+  return {
+    html: serializeMapHtml(),
     headerH1: document.querySelector('h1').innerHTML,
     headerSub: document.querySelector('.subtitle').innerHTML,
     summary: document.querySelector('.summary').innerHTML,
     actions: document.querySelector('.actions').innerHTML,
     debugReport: document.querySelector('.debug-report')?.innerHTML,
-    images: Object.fromEntries(
-      Object.entries(localStorage).filter(([k]) => k.startsWith('mindmap-img-'))
-    ),
+    retargetReport: document.querySelector('.retarget-report')?.innerHTML,
     saved: new Date().toISOString(),
   };
+}
+
+function applyState(data) {
+  if (data.html) document.getElementById('map').innerHTML = data.html;
+  if (data.headerH1) document.querySelector('h1').innerHTML = data.headerH1;
+  if (data.headerSub) document.querySelector('.subtitle').innerHTML = data.headerSub;
+  if (data.summary) document.querySelector('.summary').innerHTML = data.summary;
+  if (data.actions) document.querySelector('.actions').innerHTML = data.actions;
+  if (data.debugReport && document.querySelector('.debug-report')) {
+    document.querySelector('.debug-report').innerHTML = data.debugReport;
+  }
+  if (data.retargetReport && document.querySelector('.retarget-report')) {
+    document.querySelector('.retarget-report').innerHTML = data.retargetReport;
+  }
+}
+
+// ============ Persistence (cloud or local) ============
+async function cloudLoad() {
+  const { data, error } = await db.from('mindmap').select('data').eq('id', DOC_ID).maybeSingle();
+  if (error) { console.error('cloud load', error); return null; }
+  return data ? data.data : null;
+}
+async function cloudSave(state) {
+  const { error } = await db.from('mindmap')
+    .upsert({ id: DOC_ID, data: state, updated_at: new Date().toISOString() });
+  if (error) throw error;
+}
+
+async function load() {
+  if (cloud && db) {
+    try {
+      const state = await cloudLoad();
+      if (state) applyState(state);
+    } catch (e) { console.error('load fail', e); }
+  } else {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) { try { applyState(JSON.parse(raw)); } catch (e) {} }
+  }
+  rewireEvents();
+}
+
+async function save() {
+  const state = collectState();
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    if (cloud && db) await cloudSave(state);
+    else localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     flashSaved();
   } catch (e) {
-    saveStatus.textContent = '저장 실패 (용량 초과?)';
+    saveStatus.textContent = '저장 실패';
     saveStatus.style.color = 'red';
+    console.error(e);
   }
 }
 
 function flashSaved() {
-  saveStatus.textContent = '✓ 저장됨';
+  saveStatus.textContent = cloud ? '클라우드 저장됨' : '저장됨';
   saveStatus.className = 'save-status saved';
   setTimeout(() => {
-    saveStatus.textContent = '편집 중';
+    saveStatus.textContent = editing ? '편집 중' : '보기 모드';
     saveStatus.className = 'save-status';
-  }, 1200);
-}
-
-function load() {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if (!raw) return;
-  try {
-    const data = JSON.parse(raw);
-    if (data.html) document.getElementById('map').innerHTML = data.html;
-    if (data.headerH1) document.querySelector('h1').innerHTML = data.headerH1;
-    if (data.headerSub) document.querySelector('.subtitle').innerHTML = data.headerSub;
-    if (data.summary) document.querySelector('.summary').innerHTML = data.summary;
-    if (data.actions) document.querySelector('.actions').innerHTML = data.actions;
-    if (data.debugReport && document.querySelector('.debug-report')) {
-      document.querySelector('.debug-report').innerHTML = data.debugReport;
-    }
-    restoreImages();
-    rewireEvents();
-  } catch (e) {
-    console.error('load fail', e);
-  }
+  }, 1400);
 }
 
 function debouncedSave() {
+  if (!editing) return;
   saveStatus.textContent = '저장 중...';
   saveStatus.className = 'save-status';
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(save, 600);
+  saveTimer = setTimeout(save, 700);
 }
 
-// ============ 이미지 슬롯 ============
-function restoreImages() {
-  document.querySelectorAll('.img-slot').forEach(slot => {
-    const key = 'mindmap-img-' + slot.dataset.slot;
-    const dataUrl = localStorage.getItem(key);
-    if (dataUrl) {
-      renderImageInSlot(slot, dataUrl);
+// ============ View / edit mode ============
+function setEditing(on) {
+  editing = on;
+  document.body.classList.toggle('viewing', !on);
+  document.querySelectorAll('[contenteditable]').forEach(el =>
+    el.setAttribute('contenteditable', on ? 'true' : 'false'));
+  if (editBtn) {
+    editBtn.textContent = on ? '✓ 편집 잠그기' : '✎ 편집';
+    editBtn.classList.toggle('active', on);
+  }
+  saveStatus.textContent = on ? '편집 중' : '보기 모드';
+  saveStatus.className = 'save-status';
+}
+function toggleEdit() { setEditing(!editing); }
+
+// ============ Status label ============
+function currentStatus(node) {
+  for (const c of STATUS_CLASSES) if (node.classList.contains(c)) return c;
+  return 'none';
+}
+function setStatus(node, val) {
+  STATUS_CLASSES.forEach(c => node.classList.remove(c));
+  if (val && val !== 'none') node.classList.add(val);
+}
+
+// ============ Link row ============
+function syncLink(node) {
+  const url = node.querySelector('.node-link-url');
+  const go = node.querySelector('.node-link-go');
+  if (!url || !go) return;
+  const v = url.textContent.trim();
+  if (v) {
+    go.href = /^https?:\/\//i.test(v) ? v : 'https://' + v;
+    go.classList.remove('hidden');
+  } else {
+    go.removeAttribute('href');
+    go.classList.add('hidden');
+  }
+}
+
+// ============ Drag reorder ============
+function getDragAfter(branch, y) {
+  const nodes = [...branch.querySelectorAll('.node:not(.dragging)')];
+  let closest = { offset: -Infinity, el: null };
+  for (const n of nodes) {
+    const box = n.getBoundingClientRect();
+    const offset = y - box.top - box.height / 2;
+    if (offset < 0 && offset > closest.offset) closest = { offset, el: n };
+  }
+  return closest.el;
+}
+
+// ============ Media (link based) ============
+function hostOf(u) {
+  try { return new URL(u).hostname.replace(/^www\./, ''); } catch (_) { return '링크'; }
+}
+function classifyUrl(u) {
+  const drive = u.match(/drive\.google\.com\/file\/d\/([^/]+)/) || (/drive\.google\.com/.test(u) && u.match(/[?&]id=([^&]+)/));
+  if (drive) return { type: 'iframe', src: `https://drive.google.com/file/d/${drive[1]}/preview` };
+  const yt = u.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
+  if (yt) return { type: 'iframe', src: `https://www.youtube.com/embed/${yt[1]}` };
+  const vm = u.match(/vimeo\.com\/(\d+)/);
+  if (vm) return { type: 'iframe', src: `https://player.vimeo.com/video/${vm[1]}` };
+  if (/\.(png|jpe?g|gif|webp|svg|avif)(\?|$)/i.test(u)) return { type: 'image', src: u };
+  if (/\.(mp4|webm|ogg|mov|m4v)(\?|$)/i.test(u)) return { type: 'video', src: u };
+  return { type: 'link', src: u };
+}
+function buildMediaItem(url) {
+  const { type, src } = classifyUrl(url);
+  const item = document.createElement('div');
+  item.className = 'media-item';
+  item.dataset.url = url;
+  item.dataset.mtype = type;
+  let inner;
+  if (type === 'image') inner = `<img src="${src}" alt="">`;
+  else if (type === 'video') inner = `<video src="${src}" muted loop playsinline></video>`;
+  else if (type === 'iframe') inner = `<iframe src="${src}" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>`;
+  else inner = `<div class="media-card"><span class="mc-ico">↗</span><span class="mc-host">${hostOf(url)}</span></div>`;
+  item.innerHTML = inner + '<button type="button" class="media-remove" title="삭제">×</button>';
+  return item;
+}
+function addMediaByUrl(gallery) {
+  const url = prompt('이미지 / 영상 / 구글드라이브 / 유튜브 / Vimeo 링크를 붙여넣으세요:');
+  if (!url || !url.trim()) return;
+  const item = buildMediaItem(url.trim());
+  gallery.insertBefore(item, gallery.querySelector('.media-add'));
+  wireMediaItem(item);
+  debouncedSave();
+}
+function wireMediaItem(item) {
+  if (wiredItems.has(item)) return;
+  wiredItems.add(item);
+  const rm = item.querySelector('.media-remove');
+  if (rm) rm.addEventListener('click', e => { e.stopPropagation(); item.remove(); debouncedSave(); });
+  const type = item.dataset.mtype, url = item.dataset.url;
+  if (type === 'image' || type === 'video') {
+    item.style.cursor = 'zoom-in';
+    item.addEventListener('click', () => openLightbox(type, url));
+  } else if (type === 'link') {
+    item.style.cursor = 'pointer';
+    item.addEventListener('click', () => window.open(url, '_blank', 'noopener'));
+  }
+}
+function openLightbox(type, url) {
+  let lb = document.getElementById('media-lightbox');
+  if (!lb) {
+    lb = document.createElement('div');
+    lb.id = 'media-lightbox';
+    lb.addEventListener('click', () => { lb.style.display = 'none'; lb.innerHTML = ''; });
+    document.body.appendChild(lb);
+  }
+  lb.innerHTML = '';
+  let el;
+  if (type === 'video') { el = document.createElement('video'); el.src = url; el.controls = true; el.autoplay = true; }
+  else { el = document.createElement('img'); el.src = url; }
+  lb.appendChild(el);
+  lb.style.display = 'flex';
+}
+
+// ============ Node wiring ============
+function wireNode(node) {
+  if (wiredNodes.has(node)) return;
+  wiredNodes.add(node);
+
+  const sel = node.querySelector('.status-select');
+  if (sel) {
+    sel.value = currentStatus(node);
+    sel.addEventListener('change', () => { setStatus(node, sel.value); debouncedSave(); });
+  }
+  const url = node.querySelector('.node-link-url');
+  if (url) url.addEventListener('input', () => syncLink(node));
+  syncLink(node);
+
+  const handle = node.querySelector('.drag-handle');
+  if (handle) {
+    handle.addEventListener('pointerdown', () => { if (editing) node.setAttribute('draggable', 'true'); });
+    handle.addEventListener('pointerup', () => node.removeAttribute('draggable'));
+  }
+  node.addEventListener('dragstart', e => {
+    if (node.getAttribute('draggable') !== 'true') return;
+    draggingNode = node;
+    node.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    try { e.dataTransfer.setData('text/plain', ''); } catch (_) {}
+  });
+  node.addEventListener('dragend', () => {
+    node.classList.remove('dragging');
+    node.removeAttribute('draggable');
+    draggingNode = null;
+    debouncedSave();
+  });
+}
+
+function wireBranch(branch) {
+  if (wiredBranches.has(branch)) return;
+  wiredBranches.add(branch);
+  branch.addEventListener('dragover', e => {
+    if (!draggingNode) return;
+    e.preventDefault();
+    const after = getDragAfter(branch, e.clientY);
+    const btn = branch.querySelector('.add-node-btn');
+    if (after == null) {
+      if (btn) branch.insertBefore(draggingNode, btn);
+      else branch.appendChild(draggingNode);
+    } else {
+      branch.insertBefore(draggingNode, after);
     }
   });
 }
 
-function renderImageInSlot(slot, dataUrl) {
-  const placeholder = slot.querySelector('.placeholder');
-  const existing = slot.querySelector('img, video');
-  if (existing) existing.remove();
-  let el;
-  if (dataUrl.startsWith('data:video')) {
-    el = document.createElement('video');
-    el.src = dataUrl;
-    el.controls = true;
-    el.loop = true;
-    el.muted = true;
-  } else {
-    el = document.createElement('img');
-    el.src = dataUrl;
-  }
-  slot.insertBefore(el, slot.firstChild);
-  slot.classList.add('has-image');
-  if (placeholder) placeholder.style.display = 'none';
+function wireGallery(gallery) {
+  if (wiredGalleries.has(gallery)) return;
+  wiredGalleries.add(gallery);
+  const add = gallery.querySelector('.media-add');
+  if (add) add.addEventListener('click', () => addMediaByUrl(gallery));
+  gallery.querySelectorAll('.media-item').forEach(wireMediaItem);
 }
 
-function wireSlot(slot) {
-  const input = slot.querySelector('input[type=file]');
-  const removeBtn = slot.querySelector('.remove-btn');
-  if (input) {
-    input.addEventListener('change', e => {
-      const f = e.target.files[0];
-      if (!f) return;
-      if (f.size > 4 * 1024 * 1024) {
-        if (!confirm(`파일이 큼 (${(f.size/1024/1024).toFixed(1)}MB). localStorage 한도 초과할 수 있음. 그래도 추가?`)) {
-          input.value = '';
-          return;
-        }
-      }
-      const reader = new FileReader();
-      reader.onload = ev => {
-        const dataUrl = ev.target.result;
-        renderImageInSlot(slot, dataUrl);
-        try {
-          localStorage.setItem('mindmap-img-' + slot.dataset.slot, dataUrl);
-          flashSaved();
-        } catch (err) {
-          alert('저장 실패 — 파일이 너무 큼. 작은 이미지로 시도.');
-        }
-      };
-      reader.readAsDataURL(f);
-    });
-  }
-  if (removeBtn) {
-    removeBtn.addEventListener('click', e => {
-      e.stopPropagation();
-      const el = slot.querySelector('img, video');
-      if (el) el.remove();
-      slot.classList.remove('has-image');
-      const placeholder = slot.querySelector('.placeholder');
-      if (placeholder) placeholder.style.display = '';
-      localStorage.removeItem('mindmap-img-' + slot.dataset.slot);
-      if (input) input.value = '';
-    });
-  }
-}
-
-// ============ 노드 추가 ============
-let addCounter = 0;
+// ============ Add node ============
 function addNode(btn, branchClass) {
-  addCounter += 1;
-  const slotId = `${branchClass}-custom-${Date.now()}-${addCounter}`;
   const div = document.createElement('div');
   div.className = 'node';
-  div.innerHTML = `
-    <div class="node-title" contenteditable="true">새 모델</div>
-    <div class="node-tagline" contenteditable="true">간단 설명...</div>
-    <ul class="sub-list">
-      <li class="plus" contenteditable="true">장점 적어줘</li>
-      <li class="minus" contenteditable="true">단점 적어줘</li>
-    </ul>
-    <div class="verdict empty" contenteditable="true" data-placeholder="평가 적어줘...">미평가</div>
-    <div class="img-slot" data-slot="${slotId}">
-      <div class="placeholder"><span class="icon">📸</span>결과 추가</div>
-      <input type="file" accept="image/*,video/*">
-      <button class="remove-btn" type="button">×</button>
-    </div>
-    <button class="del-node" type="button" style="position:absolute;top:6px;right:6px;background:transparent;border:none;color:#aaa;cursor:pointer;font-size:18px;">×</button>
-  `;
   div.style.position = 'relative';
+  div.innerHTML = `
+    <div class="node-controls">
+      <span class="drag-handle" title="드래그하여 순서 변경" aria-hidden="true">⠿</span>
+      <select class="status-select" title="상태 라벨" onclick="event.stopPropagation()">
+        <option value="none" selected>— 없음</option>
+        <option value="sota">★ SOTA</option>
+        <option value="partial">△ 제한적</option>
+        <option value="unverified">○ 미검증</option>
+        <option value="failed">× 실패</option>
+      </select>
+    </div>
+    <div class="node-title" contenteditable="true">신규 모델</div>
+    <div class="node-link">
+      <span class="node-link-ico" aria-hidden="true">↗</span>
+      <span class="node-link-url" contenteditable="true" data-placeholder="git / 링크 주소 입력..."></span>
+      <a class="node-link-go hidden" target="_blank" rel="noopener" title="새 탭에서 열기">열기</a>
+    </div>
+    <div class="node-tagline" contenteditable="true">간단 설명 입력...</div>
+    <ul class="sub-list">
+      <li class="plus" contenteditable="true">장점 입력</li>
+      <li class="minus" contenteditable="true">단점 입력</li>
+    </ul>
+    <div class="verdict empty" contenteditable="true" data-placeholder="검토 의견 입력...">미검증</div>
+    <div class="media-gallery">
+      <button class="media-add" type="button"><span class="ico">+</span>미디어 링크 추가</button>
+    </div>
+    <button class="del-node" type="button" style="position:absolute;bottom:10px;right:10px;background:transparent;border:none;color:#aaa;cursor:pointer;font-size:13px;">삭제</button>
+  `;
   btn.parentNode.insertBefore(div, btn);
-  wireSlot(div.querySelector('.img-slot'));
+  wireNode(div);
+  wireGallery(div.querySelector('.media-gallery'));
   div.querySelector('.del-node').addEventListener('click', () => {
-    if (confirm('삭제?')) {
-      localStorage.removeItem('mindmap-img-' + slotId);
-      div.remove();
-      debouncedSave();
-    }
+    if (confirm('삭제?')) { div.remove(); debouncedSave(); }
   });
+  // new nodes are added while editing, so keep them editable
+  div.querySelectorAll('[contenteditable]').forEach(el => el.setAttribute('contenteditable', 'true'));
   debouncedSave();
 }
 
-// ============ 이벤트 wiring ============
+// ============ Event wiring ============
 function rewireEvents() {
-  document.querySelectorAll('.img-slot').forEach(wireSlot);
-  document.querySelectorAll('.add-node-btn').forEach(btn => {
-    // already inline onclick
-  });
+  document.querySelectorAll('.node').forEach(wireNode);
+  document.querySelectorAll('.branch').forEach(wireBranch);
+  document.querySelectorAll('.media-gallery').forEach(wireGallery);
 }
 
 document.addEventListener('input', e => {
@@ -1146,28 +1905,18 @@ document.addEventListener('input', e => {
   }
 });
 
-// 초기 wiring
 rewireEvents();
 
-// 페이지 로드 시 저장 데이터 복원
-window.addEventListener('DOMContentLoaded', () => {
-  load();
+window.addEventListener('DOMContentLoaded', async () => {
+  await load();
+  rewireEvents();
+  setEditing(false);
 });
 
-// ============ JSON 내보내기/가져오기 ============
+// ============ JSON export / import (manual backup) ============
 function exportJSON() {
-  const data = {
-    html: document.getElementById('map').innerHTML,
-    headerH1: document.querySelector('h1').innerHTML,
-    headerSub: document.querySelector('.subtitle').innerHTML,
-    summary: document.querySelector('.summary').innerHTML,
-    actions: document.querySelector('.actions').innerHTML,
-    debugReport: document.querySelector('.debug-report')?.innerHTML,
-    images: Object.fromEntries(
-      Object.entries(localStorage).filter(([k]) => k.startsWith('mindmap-img-'))
-    ),
-    exported: new Date().toISOString(),
-  };
+  const data = collectState();
+  data.exported = new Date().toISOString();
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -1184,21 +1933,11 @@ function importJSON(evt) {
   reader.onload = e => {
     try {
       const data = JSON.parse(e.target.result);
-      if (data.html) document.getElementById('map').innerHTML = data.html;
-      if (data.headerH1) document.querySelector('h1').innerHTML = data.headerH1;
-      if (data.headerSub) document.querySelector('.subtitle').innerHTML = data.headerSub;
-      if (data.summary) document.querySelector('.summary').innerHTML = data.summary;
-      if (data.actions) document.querySelector('.actions').innerHTML = data.actions;
-    if (data.debugReport && document.querySelector('.debug-report')) {
-      document.querySelector('.debug-report').innerHTML = data.debugReport;
-    }
-      if (data.images) {
-        Object.entries(data.images).forEach(([k, v]) => localStorage.setItem(k, v));
-      }
-      restoreImages();
+      applyState(data);
       rewireEvents();
-      save();
-      alert('불러오기 완료');
+      if (!editing) setEditing(true);
+      debouncedSave();
+      alert('불러오기 완료 — 편집 모드로 전환됨. 클라우드에 저장됩니다.');
     } catch (err) {
       alert('JSON 파싱 실패: ' + err.message);
     }
@@ -1207,9 +1946,10 @@ function importJSON(evt) {
 }
 
 function resetAll() {
-  if (!confirm('모든 편집 내용을 초기화? (이미지도 삭제)')) return;
-  localStorage.removeItem(STORAGE_KEY);
-  Object.keys(localStorage).filter(k => k.startsWith('mindmap-img-')).forEach(k => localStorage.removeItem(k));
+  if (!confirm(cloud
+      ? '이 브라우저의 임시 데이터를 비우고 클라우드 내용으로 다시 불러올까요?'
+      : '모든 편집 내용을 초기화? (이 브라우저 저장분)')) return;
+  if (!cloud) localStorage.removeItem(STORAGE_KEY);
   location.reload();
 }
 </script>
