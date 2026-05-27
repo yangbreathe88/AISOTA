@@ -1588,9 +1588,9 @@
 <!-- Sticky: analysis (tabbed) -->
 <div class="analysis" id="analysis">
   <div class="analysis-tabs">
-    <div class="analysis-tab an-red active" onclick="activateTab(this)"><span class="at-label" contenteditable="true">G4Splat 디버그 분석</span><span class="at-del" contenteditable="false" onclick="deleteAnalysis(event,this)" title="삭제">×</span></div>
-    <div class="analysis-tab an-blue" onclick="activateTab(this)"><span class="at-label" contenteditable="true">리타게팅 분석</span><span class="at-del" contenteditable="false" onclick="deleteAnalysis(event,this)" title="삭제">×</span></div>
-    <div class="analysis-tab an-violet" onclick="activateTab(this)"><span class="at-label" contenteditable="true">모캡 방식 비교</span><span class="at-del" contenteditable="false" onclick="deleteAnalysis(event,this)" title="삭제">×</span></div>
+    <div class="analysis-tab an-red active" data-panel="an-g4splat" onclick="activateTab(this)"><span class="at-label" contenteditable="true">G4Splat 디버그 분석</span><span class="at-del" contenteditable="false" onclick="deleteAnalysis(event,this)" title="삭제">×</span></div>
+    <div class="analysis-tab an-blue" data-panel="an-retarget" onclick="activateTab(this)"><span class="at-label" contenteditable="true">리타게팅 분석</span><span class="at-del" contenteditable="false" onclick="deleteAnalysis(event,this)" title="삭제">×</span></div>
+    <div class="analysis-tab an-violet" data-panel="an-mocap-compare" onclick="activateTab(this)"><span class="at-label" contenteditable="true">모캡 방식 비교</span><span class="at-del" contenteditable="false" onclick="deleteAnalysis(event,this)" title="삭제">×</span></div>
     <button class="analysis-add" type="button" title="분석 리포트 추가" onclick="addAnalysis()">+</button>
   </div>
   <div class="analysis-body">
@@ -1944,6 +1944,52 @@ function applyState(data) {
     if (data.debugReport) { const p = document.getElementById('an-g4splat'); if (p) p.innerHTML = data.debugReport; }
     if (data.retargetReport) { const p = document.getElementById('an-retarget'); if (p) p.innerHTML = data.retargetReport; }
   }
+  ensureMocapTab();
+  normalizeAnalysis();
+}
+
+// ============ Built-in analysis tabs (auto-merge on load) ============
+const MOCAP_TAB_B64 = "PGRpdiBjbGFzcz0iYW5hbHlzaXMtdGFiIGFuLXZpb2xldCIgZGF0YS1wYW5lbD0iYW4tbW9jYXAtY29tcGFyZSIgb25jbGljaz0iYWN0aXZhdGVUYWIodGhpcykiPjxzcGFuIGNsYXNzPSJhdC1sYWJlbCIgY29udGVudGVkaXRhYmxlPSJ0cnVlIj7rqqjsuqEg67Cp7IudIOu5hOq1kDwvc3Bhbj48c3BhbiBjbGFzcz0iYXQtZGVsIiBjb250ZW50ZWRpdGFibGU9ImZhbHNlIiBvbmNsaWNrPSJkZWxldGVBbmFseXNpcyhldmVudCx0aGlzKSIgdGl0bGU9IuyCreygnCI+w5c8L3NwYW4+PC9kaXY+";
+const MOCAP_PANEL_B64 = "PGRpdiBjbGFzcz0iYW5hbHlzaXMtcGFuZWwgcmVwb3J0LWJveCBhbi12aW9sZXQiIGlkPSJhbi1tb2NhcC1jb21wYXJlIiBoaWRkZW4+CiAgPGgzIGNvbnRlbnRlZGl0YWJsZT0idHJ1ZSI+66qo7LqhIOuwqeyLnSDruYTqtZAg4oCUIOuqqOyFmCDtlITroZzrjZXshZgg66CI65SU6rmM7KeAPC9oMz4KICA8ZGl2IGNsYXNzPSJkci1zdWJ0aXRsZSIgY29udGVudGVkaXRhYmxlPSJ0cnVlIj5BSSDsg53shLEgLyDruYTrlJTsmKTihpLrqqjshZggLyDrqqjsuqEg7IqI7Yq4IDPsooXsnYQg7IaM7JqU7Iuc6rCEIMK3IO2AhOumrO2LsCDCtyDquLDtg4Ag6rSA7KCQ7JeQ7IScIOu5hOq1kO2VqC48L2Rpdj4KCiAgPHRhYmxlIGNsYXNzPSJjbXAtdGFibGUiIGNvbnRlbnRlZGl0YWJsZT0idHJ1ZSI+CiAgICA8dGhlYWQ+CiAgICAgIDx0cj48dGg+67Cp7IudPC90aD48dGg+7IaM7JqU7Iuc6rCEPC90aD48dGg+7YCE66as7YuwPC90aD48dGg+6riw7YOAPC90aD48L3RyPgogICAgPC90aGVhZD4KICAgIDx0Ym9keT4KICAgICAgPHRyPgogICAgICAgIDx0ZCBjbGFzcz0iY21wLW5hbWUiPkFJIOyDneyEsTxicj48c3BhbiBjbGFzcz0iY21wLXN1YiI+S2ltb2RvPC9zcGFuPjwvdGQ+CiAgICAgICAgPHRkPuyDneyEsSDsnpDssrTripQg67mg66aELiDri6gsIOumrO2DgOqyjO2MhSDrqqjshZgg67mM642U7JeQ7IScIOyLpOygnOuhnCDrtpnsl6zrtJDslbwg7Iuk7LihIOqwgOuKpSDigJQg7JWE7KeBIOuvuOqygOymnS48L3RkPgogICAgICAgIDx0ZD7thY3siqTtirgv7KGw6rG0IOq4sOuwmOydtOudvCDsnZjrj4TtlZwg65SU7YWM7J28IO2GteygnOqwgCDslrTroKTsm4AuIOugiO2NvOufsOyKpCDsoJXtlanshLEg7ZmV7J24IO2VhOyalC48L3RkPgogICAgICAgIDx0ZD7rpqztg4DqsoztjIUg66qo7IWYIOu5jOuNlCDqsr3roZzrpbwg7ZWcIOuyiCDthrXqs7zsi5zsvJzslbwg7ZSE66Gc642V7IWYIOyggeyaqSDsl6zrtoAg7YyQ64uoIOqwgOuKpS48L3RkPgogICAgICA8L3RyPgogICAgICA8dHI+CiAgICAgICAgPHRkIGNsYXNzPSJjbXAtbmFtZSI+67mE65SU7Jik4oaS66qo7IWYPGJyPjxzcGFuIGNsYXNzPSJjbXAtc3ViIj5Qcm9tcHRITVIgLyBHVkhNUjwvc3Bhbj48L3RkPgogICAgICAgIDx0ZD7stpTsoJXsnYAg6rCA64ql7ZWY64KYIOu4lOugjOuNlCDrpqztg4DqsoztjIXsl5DshJwg66eJ7ZiAIOyghOyytCDsi5zqsITsnbQg7YGs6rKMIOuKmOyWtOuCqCDihpIg7Iuk7YyoLjwvdGQ+CiAgICAgICAgPHRkPkdWSE1SIOqysOqzvCDsnpDssrTripQg7KKL7J2MLiDri6Trp4wg66as7YOA6rKM7YyF7J2EIOuquyDrtpnsnbTrqbQg7ZSE66Gc642V7IWY7JeQIOuquyDslIAuPC90ZD4KICAgICAgICA8dGQ+67OR66qp7J2AIOuqqOyFmCDstpTsoJXsnbQg7JWE64uI6528IOumrO2DgOqyjO2MhS4g67iU66CM642UIOqyveuhnOuhnOuKlCDtmITsnqwg67mE7ZiE7Iuk7KCBLjwvdGQ+CiAgICAgIDwvdHI+CiAgICAgIDx0cj4KICAgICAgICA8dGQgY2xhc3M9ImNtcC1uYW1lIj7rqqjsuqEg7IqI7Yq4PC90ZD4KICAgICAgICA8dGQ+7LSs7JiBICsg7KCV66as6rmM7KeAIOyYiOy4oSDqsIDriqXtlZjqs6Ag7JWI7KCV7KCBLiDtjIzsnbTtlITrnbzsnbjsnbQg7J2066+4IOqygOymneuQqC48L3RkPgogICAgICAgIDx0ZD7slYjsoJXsoIHsnLzroZwg64aS7J2AIO2SiOyniC4g66as7YOA6rKM7YyF7J20IO2ZleumveuPvCDsnojslrQg6rKw6rO8IO2OuOywqOqwgCDsnpHsnYwuPC90ZD4KICAgICAgICA8dGQ+7J6l67mEL+qzteqwhC/rsLDsmrAg65OxIOykgOu5hCDruYTsmqnsnYAg7J6I7Jy864KYIOqysOqzvOqwgCDtmZXsi6TtlaguPC90ZD4KICAgICAgPC90cj4KICAgIDwvdGJvZHk+CiAgPC90YWJsZT4KCiAgPGRpdiBjbGFzcz0iY2FsbG91dCIgY29udGVudGVkaXRhYmxlPSJ0cnVlIj4KICAgIDxzdHJvbmc+6rKw66GgOjwvc3Ryb25nPiDrpqztg4DqsoztjIXsnbQg7ZW06rKw65CY7KeAIOyViuuKlCDtlZwsIOyVhOyngeq5jOyngOuKlCDsiojtirjrpbwg7J6F6rOgIOy6oeyymO2VmOuKlCDrsKnsi53snbQg6rCA7J6lIOuCq+uLpC4gQUkg7IOd7ISxwrfruYTrlJTsmKTihpLrqqjshZjsnYAg66qo7IWYIO2SiOyniOuztOuLpCA8ZW0+66as7YOA6rKM7YyFIOqyveuhnCDtmZXrs7Q8L2VtPuqwgCDqtIDqsbTsnbTrqbAsIOydtOqyjCDtkoDrpqzrqbQg7J6s7Y+J6rCA7ZWc64ukLgogIDwvZGl2Pgo8L2Rpdj4=";
+function b64ToHtml(b64) {
+  try { return decodeURIComponent(escape(window.atob(b64))); }
+  catch (e) { return window.atob(b64); }
+}
+function ensureMocapTab() {
+  const wrap = document.getElementById('analysis');
+  if (!wrap) return;
+  if (wrap.querySelector('#an-mocap-compare')) return; // already present
+  const tabs = wrap.querySelector('.analysis-tabs');
+  const body = wrap.querySelector('.analysis-body');
+  if (!tabs || !body) return;
+  const addBtn = tabs.querySelector('.analysis-add');
+  const tabHtml = b64ToHtml(MOCAP_TAB_B64);
+  const panelHtml = b64ToHtml(MOCAP_PANEL_B64);
+  const tmpTab = document.createElement('div');
+  tmpTab.innerHTML = tabHtml.trim();
+  const tabEl = tmpTab.firstElementChild;
+  if (addBtn) tabs.insertBefore(tabEl, addBtn); else tabs.appendChild(tabEl);
+  const tmpPanel = document.createElement('div');
+  tmpPanel.innerHTML = panelHtml.trim();
+  const panelEl = tmpPanel.firstElementChild;
+  panelEl.hidden = true;
+  body.appendChild(panelEl);
+}
+function normalizeAnalysis() {
+  const wrap = document.getElementById('analysis');
+  if (!wrap) return;
+  const tabs = [...wrap.querySelectorAll('.analysis-tab')];
+  if (!tabs.length) return;
+  // make sure every tab has a valid data-panel
+  tabs.forEach(t => panelIdForTab(t, wrap));
+  let active = wrap.querySelector('.analysis-tab.active') || tabs[0];
+  activateTabSilent(active, wrap);
+}
+function activateTabSilent(tab, wrap) {
+  const pid = panelIdForTab(tab, wrap);
+  wrap.querySelectorAll('.analysis-tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  wrap.querySelectorAll('.analysis-panel').forEach(p => { p.hidden = (p.id !== pid); });
 }
 
 // ============ Persistence ============
@@ -2012,6 +2058,7 @@ function setStatus(node, val) { STATUS_CLASSES.forEach(c => node.classList.remov
 const GH_SVG = '<svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>';
 
 function renderLink(node) {
+ try {
   const wrap = node.querySelector('.node-link');
   if (!wrap) return;
   const chip = wrap.querySelector('.nl-chip');
@@ -2041,12 +2088,16 @@ function renderLink(node) {
     ico.appendChild(img);
     if (!txt.textContent.trim()) txt.textContent = host;
   }
+ } catch (_) {}
 }
 
 function fetchGitHub(owner, repo, txt) {
   const key = 'ghc:' + owner + '/' + repo;
-  const cached = localStorage.getItem(key);
+  let cached = null;
+  try { cached = localStorage.getItem(key); } catch (_) {}
   if (cached) { txt.textContent = cached; return; }
+  if (typeof fetch !== 'function') return;
+  try {
   fetch('https://api.github.com/repos/' + owner + '/' + repo)
     .then(r => r.ok ? r.json() : null)
     .then(j => {
@@ -2057,6 +2108,7 @@ function fetchGitHub(owner, repo, txt) {
       debouncedSave();
     })
     .catch(() => {});
+  } catch (_) {}
 }
 
 // ============ Drag reorder ============
@@ -2166,7 +2218,7 @@ function wireNode(node) {
   if (ed && wrap) ed.addEventListener('input', () => {
     wrap.dataset.url = ed.textContent.trim();
     const t = wrap.querySelector('.nl-text'); if (t) t.textContent = '';
-    renderLink(node);
+    try { renderLink(node); } catch (_) {}
   });
   renderLink(node);
   const handle = node.querySelector('.drag-handle');
@@ -2211,13 +2263,28 @@ function addNode(btn, branchClass) {
 }
 
 // ============ Analysis tabs ============
+function panelIdForTab(tab, wrap) {
+  let pid = tab.getAttribute('data-panel');
+  if (pid && wrap.querySelector('#' + pid)) return pid;
+  // fallback (old saves without data-panel): match by position among tabs
+  const tabs = [...wrap.querySelectorAll('.analysis-tab')];
+  const panels = [...wrap.querySelectorAll('.analysis-panel')];
+  const idx = tabs.indexOf(tab);
+  const p = panels[idx];
+  if (p) {
+    if (!p.id) p.id = 'anp' + uid();
+    tab.setAttribute('data-panel', p.id);
+    return p.id;
+  }
+  return null;
+}
 function activateTab(tab) {
   const wrap = tab.closest('.analysis');
-  const tabs = [...wrap.querySelectorAll('.analysis-tab')];
-  const idx = tabs.indexOf(tab);
-  tabs.forEach(t => t.classList.remove('active'));
+  if (!wrap) return;
+  const pid = panelIdForTab(tab, wrap);
+  wrap.querySelectorAll('.analysis-tab').forEach(t => t.classList.remove('active'));
   tab.classList.add('active');
-  wrap.querySelectorAll('.analysis-panel').forEach((p, i) => { p.hidden = (i !== idx); });
+  wrap.querySelectorAll('.analysis-panel').forEach(p => { p.hidden = (p.id !== pid); });
   debouncedSave();
 }
 function nextAnColor() {
@@ -2231,14 +2298,17 @@ function addAnalysis() {
   const tabsEl = wrap.querySelector('.analysis-tabs');
   const body = wrap.querySelector('.analysis-body');
   const color = nextAnColor();
+  const pid = 'anp' + uid();
   const tab = document.createElement('div');
   tab.className = 'analysis-tab ' + color;
+  tab.setAttribute('data-panel', pid);
   tab.setAttribute('onclick', 'activateTab(this)');
-  tab.innerHTML = `<span class="at-label" contenteditable="true">${name}</span><span class="at-del" contenteditable="false" onclick="deleteAnalysis(event,this)" title="삭제">×</span>`;
+  tab.innerHTML = '<span class="at-label" contenteditable="true">' + name + '</span><span class="at-del" contenteditable="false" onclick="deleteAnalysis(event,this)" title="삭제">×</span>';
   tabsEl.insertBefore(tab, tabsEl.querySelector('.analysis-add'));
   const panel = document.createElement('div');
   panel.className = 'analysis-panel report-box ' + color;
-  panel.innerHTML = `<h3 contenteditable="true">${name}</h3>\n<div class="dr-subtitle" contenteditable="true">부제 입력...</div>\n<p contenteditable="true">분석 내용을 입력하세요...</p>`;
+  panel.id = pid;
+  panel.innerHTML = '<h3 contenteditable="true">' + name + '</h3>\n<div class="dr-subtitle" contenteditable="true">부제 입력...</div>\n<p contenteditable="true">분석 내용을 입력하세요...</p>';
   body.appendChild(panel);
   activateTab(tab);
   setEditing(editing);
@@ -2251,12 +2321,11 @@ function deleteAnalysis(event, el) {
   const tabs = [...wrap.querySelectorAll('.analysis-tab')];
   if (tabs.length <= 1) { alert('최소 1개의 리포트는 필요합니다.'); return; }
   if (!confirm('이 분석 리포트를 삭제할까요?')) return;
-  const idx = tabs.indexOf(tab);
-  const panels = wrap.querySelectorAll('.analysis-panel');
-  if (panels[idx]) panels[idx].remove();
+  const pid = panelIdForTab(tab, wrap);
+  const wasActive = tab.classList.contains('active');
+  if (pid) { const p = wrap.querySelector('#' + pid); if (p) p.remove(); }
   tab.remove();
-  const first = wrap.querySelector('.analysis-tab');
-  if (first) activateTab(first);
+  if (wasActive) { const first = wrap.querySelector('.analysis-tab'); if (first) activateTab(first); }
   debouncedSave();
 }
 
@@ -2309,10 +2378,10 @@ function deleteCategory(event, el) {
 
 // ============ Wiring + listeners ============
 function rewireEvents() {
-  document.querySelectorAll('.node').forEach(n => { wireNode(n); syncVerdict(n); });
-  document.querySelectorAll('.branch').forEach(wireBranch);
-  document.querySelectorAll('.media-gallery').forEach(wireGallery);
-  decorateLines();
+  document.querySelectorAll('.node').forEach(n => { try { wireNode(n); syncVerdict(n); } catch (e) { console.error('wireNode', e); } });
+  document.querySelectorAll('.branch').forEach(b => { try { wireBranch(b); } catch (_) {} });
+  document.querySelectorAll('.media-gallery').forEach(g => { try { wireGallery(g); } catch (_) {} });
+  try { decorateLines(); } catch (_) {}
 }
 document.addEventListener('input', e => {
   if (e.target.isContentEditable || e.target.closest('[contenteditable=true]')) debouncedSave();
@@ -2328,12 +2397,21 @@ document.addEventListener('click', e => {
     if (node && confirm('이 노드를 삭제할까요?')) { node.remove(); debouncedSave(); }
   }
 });
-rewireEvents();
-window.addEventListener('DOMContentLoaded', async () => {
-  await load();
-  rewireEvents();
-  setEditing(false);
-});
+async function boot() {
+  // analysis must work even if anything else throws
+  try { ensureMocapTab(); } catch (e) { console.error('ensureMocapTab', e); }
+  try { normalizeAnalysis(); } catch (e) { console.error('normalizeAnalysis', e); }
+  try { await load(); } catch (e) { console.error('load', e); }
+  try { ensureMocapTab(); } catch (e) { console.error('ensureMocapTab2', e); }
+  try { normalizeAnalysis(); } catch (e) { console.error('normalizeAnalysis2', e); }
+  try { rewireEvents(); } catch (e) { console.error('rewireEvents', e); }
+  try { setEditing(false); } catch (e) { console.error('setEditing', e); }
+}
+if (document.readyState === 'loading') {
+  window.addEventListener('DOMContentLoaded', boot);
+} else {
+  boot();
+}
 
 // ============ JSON export / import ============
 function exportJSON() {
