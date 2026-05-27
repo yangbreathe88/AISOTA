@@ -805,21 +805,35 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;
   }
-  .media-item, .media-add {
+  .media-item { position: relative; }
+  .media-frame, .media-add {
     aspect-ratio: 16 / 9;
     border-radius: var(--radius-sm);
     overflow: hidden;
     position: relative;
   }
-  .media-item {
+  .media-frame {
     border: 1px solid var(--border);
     background: #0e1116;
-    cursor: zoom-in;
   }
-  .media-item img, .media-item video {
+  .media-frame img, .media-frame video {
     width: 100%; height: 100%;
     object-fit: cover;
     display: block;
+  }
+  .media-cap {
+    margin-top: 4px;
+    font-size: 11px;
+    line-height: 1.4;
+    color: var(--ink-dim);
+    text-align: center;
+    padding: 1px 4px;
+    border-radius: 4px;
+  }
+  .media-cap[contenteditable="true"]:empty::before {
+    content: attr(data-placeholder);
+    color: var(--ink-faint);
+    font-style: italic;
   }
   .media-remove {
     position: absolute;
@@ -832,7 +846,7 @@
     cursor: pointer; display: none;
   }
   .media-remove:hover { background: rgba(0,0,0,.85); }
-  .media-item:hover .media-remove { display: block; }
+  .media-frame:hover .media-remove { display: block; }
   .media-add {
     border: 1.5px dashed var(--border-strong);
     background: var(--surface-2);
@@ -879,7 +893,7 @@
   body.viewing .node:hover { transform: none; }
   body.viewing .node-title { padding-right: 18px; }
 
-  .media-item iframe {
+  .media-frame iframe {
     width: 100%; height: 100%;
     border: 0; display: block;
   }
@@ -893,6 +907,40 @@
   }
   .media-card .mc-ico { font-size: 18px; color: var(--gauss); }
   .media-card .mc-host { word-break: break-all; line-height: 1.3; }
+
+  /* ---------- Sub-list line add/remove ---------- */
+  .sub-list li { padding-right: 20px; }
+  .li-del {
+    position: absolute;
+    top: 3px; right: 0;
+    color: var(--ink-faint);
+    cursor: pointer;
+    font-size: 12px; line-height: 1;
+    display: none;
+    user-select: none;
+    padding: 2px;
+  }
+  .sub-list li:hover .li-del { display: inline; }
+  .li-del:hover { color: var(--red); }
+  .sublist-add {
+    display: flex; gap: 6px;
+    margin: 0 0 10px;
+  }
+  .sl-btn {
+    font-family: inherit; font-size: 11px; font-weight: 600;
+    cursor: pointer;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--ink-dim);
+  }
+  .sl-btn:hover { border-color: var(--border-strong); }
+  .sl-btn.plus  { color: var(--green); }
+  .sl-btn.minus { color: var(--red); }
+  .sl-btn.warn  { color: var(--orange); }
+  body.viewing .sublist-add,
+  body.viewing .li-del { display: none !important; }
 
   /* ---------- Motion ---------- */
   @keyframes rise {
@@ -919,6 +967,8 @@
 <div class="toolbar">
   <span class="save-status" id="save-status">보기 모드</span>
   <button id="edit-btn" onclick="toggleEdit()">✎ 편집</button>
+  <button onclick="toggleFullscreen()" title="전체 화면 (ESC로 종료)">⛶ 전체화면</button>
+  <button onclick="openSelf()" title="새 탭에서 크게 열기">↗ 새 탭</button>
   <button onclick="exportJSON()">JSON 저장</button>
   <button onclick="document.getElementById('import-input').click()">불러오기</button>
   <input type="file" id="import-input" accept=".json" style="display:none" onchange="importJSON(event)">
@@ -966,6 +1016,11 @@
         <li class="minus" contenteditable="true">출력 해상도가 1024² 미만으로 영화·CF 품질에 미달</li>
         <li class="minus" contenteditable="true">텍스처 디테일 부족, UE 임포트 시 LOD 단계 부족</li>
       </ul>
+      <div class="sublist-add">
+        <button type="button" class="sl-btn plus" onclick="addLine(this,'plus')">+ 장점</button>
+        <button type="button" class="sl-btn minus" onclick="addLine(this,'minus')">− 단점</button>
+        <button type="button" class="sl-btn warn" onclick="addLine(this,'warn')">! 주의</button>
+      </div>
       <div class="verdict" contenteditable="true">프로토타입 용도로 한정됨. 양산 라인업 적용은 불가하며, tile/upscale 후처리는 별도 R&amp;D 라운드가 필요함.</div>
       <div class="media-gallery" data-gallery="hyworld2">
         <button class="media-add" type="button"><span class="ico">+</span>미디어 링크 추가</button>
@@ -992,6 +1047,11 @@
         <li class="warn" contenteditable="true">데모 데이터가 ScanNet++/Replica orbit shot에 한정됨</li>
         <li class="warn" contenteditable="true">실사용 영상(1080p panning)은 SfM·densify 모두 취약</li>
       </ul>
+      <div class="sublist-add">
+        <button type="button" class="sl-btn plus" onclick="addLine(this,'plus')">+ 장점</button>
+        <button type="button" class="sl-btn minus" onclick="addLine(this,'minus')">− 단점</button>
+        <button type="button" class="sl-btn warn" onclick="addLine(this,'warn')">! 주의</button>
+      </div>
       <div class="verdict" contenteditable="true">현 스튜디오 GPU 환경에서 안정적 산출 불가. 원인 분석은 하단 「G4Splat 디버그 분석」 참조.</div>
       <div class="media-gallery" data-gallery="g4splat">
         <button class="media-add" type="button"><span class="ico">+</span>미디어 링크 추가</button>
@@ -1014,6 +1074,11 @@
         <li class="plus" contenteditable="true">NVIDIA 최신 World Model, 높은 생성 성능 기대</li>
         <li class="warn" contenteditable="true">미검증 — 차기 검증 1순위 (G4Splat 동일 데이터로 비교 예정)</li>
       </ul>
+      <div class="sublist-add">
+        <button type="button" class="sl-btn plus" onclick="addLine(this,'plus')">+ 장점</button>
+        <button type="button" class="sl-btn minus" onclick="addLine(this,'minus')">− 단점</button>
+        <button type="button" class="sl-btn warn" onclick="addLine(this,'warn')">! 주의</button>
+      </div>
       <div class="verdict empty" contenteditable="true" data-placeholder="검토 의견 입력...">미검증. 차기 검증 1순위.</div>
       <div class="media-gallery" data-gallery="sana-wm">
         <button class="media-add" type="button"><span class="ico">+</span>미디어 링크 추가</button>
@@ -1047,6 +1112,11 @@
         <li class="plus" contenteditable="true">토폴로지 양호 — 일반 사용 가능 수준</li>
         <li class="minus" contenteditable="true">UV 맵 품질 미흡 (3D 생성 AI 공통 문제)</li>
       </ul>
+      <div class="sublist-add">
+        <button type="button" class="sl-btn plus" onclick="addLine(this,'plus')">+ 장점</button>
+        <button type="button" class="sl-btn minus" onclick="addLine(this,'minus')">− 단점</button>
+        <button type="button" class="sl-btn warn" onclick="addLine(this,'warn')">! 주의</button>
+      </div>
       <div class="verdict" contenteditable="true">현 3D 생성 AI 중 SOTA로 판단함. UV 후처리만 보완되면 양산 적용 가능.</div>
       <div class="media-gallery" data-gallery="pixel3d">
         <button class="media-add" type="button"><span class="ico">+</span>미디어 링크 추가</button>
@@ -1071,6 +1141,11 @@
         <li class="plus" contenteditable="true">메쉬·3DGS 양쪽 출력 가능</li>
         <li class="warn" contenteditable="true">단일 이미지 입력 시 절대 품질은 Pixel3D가 우위</li>
       </ul>
+      <div class="sublist-add">
+        <button type="button" class="sl-btn plus" onclick="addLine(this,'plus')">+ 장점</button>
+        <button type="button" class="sl-btn minus" onclick="addLine(this,'minus')">− 단점</button>
+        <button type="button" class="sl-btn warn" onclick="addLine(this,'warn')">! 주의</button>
+      </div>
       <div class="verdict" contenteditable="true">Pixel3D와 상호 보완 관계. 단일 이미지 디테일은 Pixel3D, 다중 뷰 robustness는 본 모델이 우수함.</div>
       <div class="media-gallery" data-gallery="rbg">
         <button class="media-add" type="button"><span class="ico">+</span>미디어 링크 추가</button>
@@ -1093,6 +1168,11 @@
         <li class="warn" contenteditable="true">자동 UV AI(DA-Wand·Nuvo·AutoUV)는 코드 비공개로 사용 불가</li>
         <li class="plus" contenteditable="true">대안: xatlas(오픈소스), RizomUV(상용, 약 400 USD)</li>
       </ul>
+      <div class="sublist-add">
+        <button type="button" class="sl-btn plus" onclick="addLine(this,'plus')">+ 장점</button>
+        <button type="button" class="sl-btn minus" onclick="addLine(this,'minus')">− 단점</button>
+        <button type="button" class="sl-btn warn" onclick="addLine(this,'warn')">! 주의</button>
+      </div>
       <div class="verdict" contenteditable="true">현 시점 traditional algorithm(xatlas/RizomUV)이 현실적 해법. Pixel3D + xatlas + retopo 자동화 스크립트가 차기 과제.</div>
       <div class="media-gallery" data-gallery="uv">
         <button class="media-add" type="button"><span class="ico">+</span>미디어 링크 추가</button>
@@ -1126,6 +1206,11 @@
         <li class="plus" contenteditable="true">temporal consistency 우수 (영상 처리 안정)</li>
         <li class="minus" contenteditable="true">VRAM 요구량이 크고 추론 속도가 느림</li>
       </ul>
+      <div class="sublist-add">
+        <button type="button" class="sl-btn plus" onclick="addLine(this,'plus')">+ 장점</button>
+        <button type="button" class="sl-btn minus" onclick="addLine(this,'minus')">− 단점</button>
+        <button type="button" class="sl-btn warn" onclick="addLine(this,'warn')">! 주의</button>
+      </div>
       <div class="verdict" contenteditable="true">검토 대상 중 결과물이 가장 정제됨. SOTA로 판단하며, 촬영 본편 정리 단계에 통합 권장.</div>
       <div class="media-gallery" data-gallery="effecterase">
         <button class="media-add" type="button"><span class="ico">+</span>미디어 링크 추가</button>
@@ -1148,6 +1233,11 @@
         <li class="plus" contenteditable="true">가볍고 빠른 인터랙티브 도구</li>
         <li class="minus" contenteditable="true">영상 단위 처리를 지원하지 않으며 단일 프레임에 한정됨</li>
       </ul>
+      <div class="sublist-add">
+        <button type="button" class="sl-btn plus" onclick="addLine(this,'plus')">+ 장점</button>
+        <button type="button" class="sl-btn minus" onclick="addLine(this,'minus')">− 단점</button>
+        <button type="button" class="sl-btn warn" onclick="addLine(this,'warn')">! 주의</button>
+      </div>
       <div class="verdict empty" contenteditable="true" data-placeholder="검토 의견 입력...">미검증.</div>
       <div class="media-gallery" data-gallery="image-blaster">
         <button class="media-add" type="button"><span class="ico">+</span>미디어 링크 추가</button>
@@ -1170,6 +1260,11 @@
         <li class="plus" contenteditable="true">Netflix 프로덕션 검증, 영상 안정성 확보</li>
         <li class="minus" contenteditable="true">객체 제거보다 matting 중심</li>
       </ul>
+      <div class="sublist-add">
+        <button type="button" class="sl-btn plus" onclick="addLine(this,'plus')">+ 장점</button>
+        <button type="button" class="sl-btn minus" onclick="addLine(this,'minus')">− 단점</button>
+        <button type="button" class="sl-btn warn" onclick="addLine(this,'warn')">! 주의</button>
+      </div>
       <div class="verdict empty" contenteditable="true" data-placeholder="검토 의견 입력...">미검증.</div>
       <div class="media-gallery" data-gallery="void-model">
         <button class="media-add" type="button"><span class="ico">+</span>미디어 링크 추가</button>
@@ -1203,6 +1298,11 @@
         <li class="minus" contenteditable="true">I-pose 출력으로 MetaHuman A-pose와 약 60° rest 갭</li>
         <li class="minus" contenteditable="true">무료 솔루션(Blender + Rokoko) 리타게팅 수렴 실패</li>
       </ul>
+      <div class="sublist-add">
+        <button type="button" class="sl-btn plus" onclick="addLine(this,'plus')">+ 장점</button>
+        <button type="button" class="sl-btn minus" onclick="addLine(this,'minus')">− 단점</button>
+        <button type="button" class="sl-btn warn" onclick="addLine(this,'warn')">! 주의</button>
+      </div>
       <div class="verdict" contenteditable="true">모션 생성 자체는 양호하나 리타게팅이 블로커. 상세 분석은 하단 「리타게팅 분석」 참조.</div>
       <div class="media-gallery" data-gallery="kimodo">
         <button class="media-add" type="button"><span class="ico">+</span>미디어 링크 추가</button>
@@ -1227,6 +1327,11 @@
         <li class="minus" contenteditable="true">동적 카메라 시 root translation 부정확, 다중 인물 트랙 불안정</li>
         <li class="minus" contenteditable="true">ground contact 모델 없음 — 발 미끄러짐 가능</li>
       </ul>
+      <div class="sublist-add">
+        <button type="button" class="sl-btn plus" onclick="addLine(this,'plus')">+ 장점</button>
+        <button type="button" class="sl-btn minus" onclick="addLine(this,'minus')">− 단점</button>
+        <button type="button" class="sl-btn warn" onclick="addLine(this,'warn')">! 주의</button>
+      </div>
       <div class="verdict" contenteditable="true">정적 카메라용으로 적합. SMPL → MetaHuman 리타게팅 필요(약 30° 갭).</div>
       <div class="media-gallery" data-gallery="prompthmr">
         <button class="media-add" type="button"><span class="ico">+</span>미디어 링크 추가</button>
@@ -1250,6 +1355,11 @@
         <li class="plus" contenteditable="true">ground contact 모델 보유 (발 미끄러짐 완화)</li>
         <li class="minus" contenteditable="true">다중 인물 처리에 취약</li>
       </ul>
+      <div class="sublist-add">
+        <button type="button" class="sl-btn plus" onclick="addLine(this,'plus')">+ 장점</button>
+        <button type="button" class="sl-btn minus" onclick="addLine(this,'minus')">− 단점</button>
+        <button type="button" class="sl-btn warn" onclick="addLine(this,'warn')">! 주의</button>
+      </div>
       <div class="verdict" contenteditable="true">동적 카메라용으로 적합. 정적은 PromptHMR, 동적은 GVHMR로 혼합 운용 권장.</div>
       <div class="media-gallery" data-gallery="gvhmr">
         <button class="media-add" type="button"><span class="ico">+</span>미디어 링크 추가</button>
@@ -1272,6 +1382,11 @@
         <li class="plus" contenteditable="true">대부분 HumanIK 호환, T-pose 캘리브레이션 표준으로 리타게팅 경로 최단</li>
         <li class="warn" contenteditable="true">미시도 — AI 경로 검증 시 불필요할 수 있어 안전 백업으로 보류</li>
       </ul>
+      <div class="sublist-add">
+        <button type="button" class="sl-btn plus" onclick="addLine(this,'plus')">+ 장점</button>
+        <button type="button" class="sl-btn minus" onclick="addLine(this,'minus')">− 단점</button>
+        <button type="button" class="sl-btn warn" onclick="addLine(this,'warn')">! 주의</button>
+      </div>
       <div class="verdict empty" contenteditable="true" data-placeholder="검토 의견 입력...">미시도. 보류 (안전 백업).</div>
       <div class="media-gallery" data-gallery="mocap-suit">
         <button class="media-add" type="button"><span class="ico">+</span>미디어 링크 추가</button>
@@ -1552,8 +1667,8 @@
 <script>
 // ===== CONFIG: fill these with your Supabase project values =====
 // Leave both empty to fall back to this browser's localStorage (solo/local test).
-const SUPABASE_URL = 'https://gldbefpctwusmlxntgbg.supabase.co';        // e.g. https://xxxxxxxx.supabase.co
-const SUPABASE_ANON_KEY = 'sb_publishable_cLHNwua7cWXxhCW3ahKSUg_U2MTy3JC';   // project anon public key
+const SUPABASE_URL = '';        // e.g. https://xxxxxxxx.supabase.co
+const SUPABASE_ANON_KEY = '';   // project anon public key
 const DOC_ID = 'main';
 // ================================================================
 
@@ -1585,6 +1700,7 @@ function serializeMapHtml() {
     n.classList.remove('dragging');
     n.removeAttribute('draggable');
   });
+  clone.querySelectorAll('.li-del').forEach(n => n.remove());
   return clone.innerHTML;
 }
 
@@ -1674,7 +1790,7 @@ function debouncedSave() {
 function setEditing(on) {
   editing = on;
   document.body.classList.toggle('viewing', !on);
-  document.querySelectorAll('[contenteditable]').forEach(el =>
+  document.querySelectorAll('[contenteditable]:not(.li-del)').forEach(el =>
     el.setAttribute('contenteditable', on ? 'true' : 'false'));
   if (editBtn) {
     editBtn.textContent = on ? '✓ 편집 잠그기' : '✎ 편집';
@@ -1684,6 +1800,18 @@ function setEditing(on) {
   saveStatus.className = 'save-status';
 }
 function toggleEdit() { setEditing(!editing); }
+
+function toggleFullscreen() {
+  const el = document.documentElement;
+  if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+    const req = el.requestFullscreen || el.webkitRequestFullscreen;
+    if (req) req.call(el);
+  } else {
+    const exit = document.exitFullscreen || document.webkitExitFullscreen;
+    if (exit) exit.call(document);
+  }
+}
+function openSelf() { window.open(location.href, "_blank", "noopener"); }
 
 // ============ Status label ============
 function currentStatus(node) {
@@ -1737,7 +1865,7 @@ function classifyUrl(u) {
   if (/\.(mp4|webm|ogg|mov|m4v)(\?|$)/i.test(u)) return { type: 'video', src: u };
   return { type: 'link', src: u };
 }
-function buildMediaItem(url) {
+function buildMediaItem(url, caption) {
   const { type, src } = classifyUrl(url);
   const item = document.createElement('div');
   item.className = 'media-item';
@@ -1748,7 +1876,16 @@ function buildMediaItem(url) {
   else if (type === 'video') inner = `<video src="${src}" muted loop playsinline></video>`;
   else if (type === 'iframe') inner = `<iframe src="${src}" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>`;
   else inner = `<div class="media-card"><span class="mc-ico">↗</span><span class="mc-host">${hostOf(url)}</span></div>`;
-  item.innerHTML = inner + '<button type="button" class="media-remove" title="삭제">×</button>';
+  const frame = document.createElement('div');
+  frame.className = 'media-frame';
+  frame.innerHTML = inner + '<button type="button" class="media-remove" title="삭제">×</button>';
+  const cap = document.createElement('div');
+  cap.className = 'media-cap';
+  cap.setAttribute('contenteditable', editing ? 'true' : 'false');
+  cap.setAttribute('data-placeholder', '설명 / 각주 입력...');
+  if (caption) cap.textContent = caption;
+  item.appendChild(frame);
+  item.appendChild(cap);
   return item;
 }
 function addMediaByUrl(gallery) {
@@ -1762,16 +1899,43 @@ function addMediaByUrl(gallery) {
 function wireMediaItem(item) {
   if (wiredItems.has(item)) return;
   wiredItems.add(item);
+  const frame = item.querySelector('.media-frame');
   const rm = item.querySelector('.media-remove');
   if (rm) rm.addEventListener('click', e => { e.stopPropagation(); item.remove(); debouncedSave(); });
   const type = item.dataset.mtype, url = item.dataset.url;
-  if (type === 'image' || type === 'video') {
-    item.style.cursor = 'zoom-in';
-    item.addEventListener('click', () => openLightbox(type, url));
-  } else if (type === 'link') {
-    item.style.cursor = 'pointer';
-    item.addEventListener('click', () => window.open(url, '_blank', 'noopener'));
+  if (frame && (type === 'image' || type === 'video')) {
+    frame.style.cursor = 'zoom-in';
+    frame.addEventListener('click', () => openLightbox(type, url));
+  } else if (frame && type === 'link') {
+    frame.style.cursor = 'pointer';
+    frame.addEventListener('click', () => window.open(url, '_blank', 'noopener'));
   }
+}
+
+// ============ Sub-list line add / delete ============
+function decorateLine(li) {
+  if (li.querySelector(':scope > .li-del')) return;
+  const x = document.createElement('span');
+  x.className = 'li-del';
+  x.setAttribute('contenteditable', 'false');
+  x.title = '줄 삭제';
+  x.textContent = '×';
+  li.appendChild(x);
+}
+function decorateLines() {
+  document.querySelectorAll('.sub-list li').forEach(decorateLine);
+}
+function addLine(btn, type) {
+  const ul = btn.parentElement.previousElementSibling;
+  if (!ul || !ul.classList.contains('sub-list')) return;
+  const li = document.createElement('li');
+  li.className = type;
+  li.setAttribute('contenteditable', 'true');
+  li.textContent = type === 'plus' ? '장점 입력' : type === 'minus' ? '단점 입력' : '주의 입력';
+  ul.appendChild(li);
+  decorateLine(li);
+  li.focus();
+  debouncedSave();
 }
 function openLightbox(type, url) {
   let lb = document.getElementById('media-lightbox');
@@ -1875,6 +2039,11 @@ function addNode(btn, branchClass) {
       <li class="plus" contenteditable="true">장점 입력</li>
       <li class="minus" contenteditable="true">단점 입력</li>
     </ul>
+    <div class="sublist-add">
+      <button type="button" class="sl-btn plus" onclick="addLine(this,'plus')">+ 장점</button>
+      <button type="button" class="sl-btn minus" onclick="addLine(this,'minus')">− 단점</button>
+      <button type="button" class="sl-btn warn" onclick="addLine(this,'warn')">! 주의</button>
+    </div>
     <div class="verdict empty" contenteditable="true" data-placeholder="검토 의견 입력...">미검증</div>
     <div class="media-gallery">
       <button class="media-add" type="button"><span class="ico">+</span>미디어 링크 추가</button>
@@ -1888,7 +2057,8 @@ function addNode(btn, branchClass) {
     if (confirm('삭제?')) { div.remove(); debouncedSave(); }
   });
   // new nodes are added while editing, so keep them editable
-  div.querySelectorAll('[contenteditable]').forEach(el => el.setAttribute('contenteditable', 'true'));
+  div.querySelectorAll('.sub-list li').forEach(decorateLine);
+  div.querySelectorAll('[contenteditable]:not(.li-del)').forEach(el => el.setAttribute('contenteditable', 'true'));
   debouncedSave();
 }
 
@@ -1897,12 +2067,18 @@ function rewireEvents() {
   document.querySelectorAll('.node').forEach(wireNode);
   document.querySelectorAll('.branch').forEach(wireBranch);
   document.querySelectorAll('.media-gallery').forEach(wireGallery);
+  decorateLines();
 }
 
 document.addEventListener('input', e => {
   if (e.target.isContentEditable || e.target.closest('[contenteditable=true]')) {
     debouncedSave();
   }
+});
+
+document.addEventListener('click', e => {
+  const d = e.target.closest && e.target.closest('.li-del');
+  if (d) { const li = d.closest('li'); if (li) { li.remove(); debouncedSave(); } }
 });
 
 rewireEvents();
