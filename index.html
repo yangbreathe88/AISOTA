@@ -1049,6 +1049,72 @@
   td.fail .cmp-dot { background: var(--erase, #e03131); border-color: var(--erase, #e03131); }
   body:not(.viewing) .cmp-dot { cursor: pointer; }
   body:not(.viewing) .cmp-dot:hover { transform: scale(1.3); }
+  .cmp-bg { margin-right: 6px; vertical-align: middle; }
+  body.viewing .cmp-bg { display: none; }
+  body.viewing .cmp-dot { pointer-events: none; }
+  /* independent cell background swatch (separate from dot) */
+  td.bg-blue   { background: rgba(28,127,214,.10) !important; }
+  td.bg-orange { background: rgba(240,140,0,.12) !important; }
+  td.bg-red    { background: rgba(224,49,49,.10) !important; }
+  td.bg-green  { background: rgba(47,158,68,.12) !important; }
+  td.bg-gray   { background: rgba(0,0,0,.05) !important; }
+  .cell-tools {
+    display: none;
+    gap: 3px; margin-top: 4px;
+  }
+  body:not(.viewing) td:hover .cell-tools { display: flex; }
+  .cell-tool {
+    width: 14px; height: 14px; border-radius: 3px;
+    border: 1px solid var(--border-strong); cursor: pointer; padding: 0;
+    font-size: 9px; line-height: 1; color: var(--ink-faint); background: var(--surface);
+  }
+  .cell-tool.bgsw { border-radius: 50%; }
+  .cell-tool.s-blue   { background: rgba(28,127,214,.5); }
+  .cell-tool.s-orange { background: rgba(240,140,0,.55); }
+  .cell-tool.s-red    { background: rgba(224,49,49,.5); }
+  .cell-tool.s-green  { background: rgba(47,158,68,.55); }
+  .cell-tool.s-none   { background: var(--surface); }
+  /* analysis panel editing toolbar */
+  .panel-tools {
+    display: none; flex-wrap: wrap; gap: 6px;
+    margin: 10px 0; padding: 8px; border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-xs); background: var(--surface-2);
+  }
+  body:not(.viewing) .panel-tools { display: flex; }
+  .panel-tools button {
+    font-family: inherit; font-size: 12px; font-weight: 600;
+    padding: 5px 10px; border-radius: 6px; cursor: pointer;
+    border: 1px solid var(--border); background: var(--surface); color: var(--ink-dim);
+  }
+  .panel-tools button:hover { border-color: var(--gauss); color: var(--gauss); }
+  /* generic editable table tools */
+  .tbl-wrap { position: relative; margin: 12px 0; }
+  .tbl-tools { display: none; gap: 6px; margin-bottom: 6px; }
+  body:not(.viewing) .tbl-tools { display: flex; flex-wrap: wrap; }
+  .tbl-tools button {
+    font-family: inherit; font-size: 11px; font-weight: 600;
+    padding: 4px 9px; border-radius: 6px; cursor: pointer;
+    border: 1px solid var(--border); background: var(--surface); color: var(--ink-dim);
+  }
+  .tbl-tools button:hover { border-color: var(--gauss); color: var(--gauss); }
+  .tbl-tools button.danger:hover { border-color: var(--red); color: var(--red); }
+  .row-del, .col-del {
+    display: none; position: absolute; z-index: 5;
+    width: 16px; height: 16px; border-radius: 50%; padding: 0;
+    border: 1px solid var(--border-strong); background: var(--surface);
+    color: var(--ink-faint); cursor: pointer; font-size: 10px; line-height: 1;
+  }
+  .row-del:hover, .col-del:hover { color: #fff; background: var(--red); border-color: var(--red); }
+  body:not(.viewing) .dr-table tr:hover .row-del { display: block; }
+  body:not(.viewing) .dr-table .col-del { display: none; }
+  body:not(.viewing) .dr-table th:hover .col-del { display: block; }
+  /* paragraph/line delete in panels */
+  .blk-del {
+    display: none; margin-left: 6px; cursor: pointer; color: var(--ink-faint);
+    font-size: 12px; user-select: none; vertical-align: middle;
+  }
+  body:not(.viewing) .report-box .editable-block:hover > .blk-del { display: inline; }
+  .blk-del:hover { color: var(--red); }
 
   /* ---------- Node delete button ---------- */
   .del-node {
@@ -1913,7 +1979,7 @@ let db = null;
 if (cloud && window.supabase) db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const STATUS_CLASSES = ['sota', 'partial', 'unverified', 'failed'];
-const EDIT_EXCLUDE = '[contenteditable]:not(.li-del):not(.cat-del):not(.at-del)';
+const EDIT_EXCLUDE = '[contenteditable]:not(.li-del):not(.cat-del):not(.at-del):not(.blk-del):not(.row-del):not(.col-del):not(.cell-tool):not(.panel-tools):not(.tbl-tools):not(.cmp-dot)';
 const wiredNodes = new WeakSet();
 const wiredBranches = new WeakSet();
 const wiredGalleries = new WeakSet();
@@ -1967,6 +2033,9 @@ function serializeMapHtml() {
   const clone = document.getElementById('map').cloneNode(true);
   clone.querySelectorAll('.node').forEach(n => { n.classList.remove('dragging'); n.removeAttribute('draggable'); });
   clone.querySelectorAll('.li-del').forEach(n => n.remove());
+  // strip runtime-only control bits so they are regenerated cleanly on load
+  clone.querySelectorAll('.row-del, .col-del, .blk-del, .cmp-dot, .cmp-bg, .panel-tools, .tbl-tools').forEach(n => n.remove());
+  // unwrap legacy auto-wrapped tables is not needed; keep tbl-wrap
   return clone.innerHTML;
 }
 function collectState() {
@@ -2116,7 +2185,7 @@ function renderLink(node) {
   const txt = wrap.querySelector('.nl-text');
   if (!chip || !ico || !txt) return;
   const raw = (wrap.dataset.url || '').trim();
-  if (!raw) { chip.hidden = true; return; }
+  if (!raw) { chip.hidden = true; txt.textContent = ''; return; }
   const href = /^https?:\/\//i.test(raw) ? raw : 'https://' + raw;
   chip.hidden = false;
   chip.href = href;
@@ -2264,12 +2333,17 @@ function wireNode(node) {
   if (sel) { sel.value = currentStatus(node); sel.addEventListener('change', () => { setStatus(node, sel.value); debouncedSave(); }); }
   const ed = node.querySelector('.nl-edit');
   const wrap = node.querySelector('.node-link');
-  if (ed && wrap) ed.addEventListener('input', () => {
-    wrap.dataset.url = ed.textContent.trim();
-    const t = wrap.querySelector('.nl-text'); if (t) t.textContent = '';
-    try { renderLink(node); } catch (_) {}
-  });
-  renderLink(node);
+  if (ed && wrap) {
+    let lt;
+    ed.addEventListener('input', () => {
+      wrap.dataset.url = ed.textContent.trim();
+      const t = wrap.querySelector('.nl-text'); if (t) t.textContent = '';
+      clearTimeout(lt);
+      lt = setTimeout(() => { try { renderLink(node); } catch (_) {} }, 250);
+    });
+    ed.addEventListener('blur', () => { try { renderLink(node); } catch (_) {} });
+  }
+  try { renderLink(node); } catch (_) {}
   const handle = node.querySelector('.drag-handle');
   if (handle) {
     handle.addEventListener('pointerdown', () => { if (editing) node.setAttribute('draggable', 'true'); });
@@ -2313,6 +2387,192 @@ function addNode(btn, branchClass) {
 
 // ============ Analysis tabs ============
 const CMP_STATES = ['none', 'ok', 'warn', 'fail'];
+const CMP_BG = ['', 'bg-blue', 'bg-orange', 'bg-red', 'bg-green', 'bg-gray'];
+
+// cycle background color of a comparison/table cell (independent from dot)
+function cycleCellBg(btn) {
+  if (!editing) return;
+  const td = btn.closest('td');
+  if (!td) return;
+  let cur = '';
+  for (const c of CMP_BG) if (c && td.classList.contains(c)) cur = c;
+  const next = CMP_BG[(CMP_BG.indexOf(cur) + 1) % CMP_BG.length];
+  CMP_BG.forEach(c => c && td.classList.remove(c));
+  if (next) td.classList.add(next);
+  debouncedSave();
+}
+
+// === Generic editable tables inside analysis panels (.dr-table) ===
+function makeCell(tag, text) {
+  const el = document.createElement(tag);
+  el.setAttribute('contenteditable', editing ? 'true' : 'false');
+  el.textContent = text || '';
+  return el;
+}
+function newEditableTable(cols, rows) {
+  cols = cols || 3; rows = rows || 2;
+  const wrap = document.createElement('div');
+  wrap.className = 'tbl-wrap';
+  wrap.innerHTML =
+    '<div class="tbl-tools" contenteditable="false">' +
+    '<button type="button" onclick="tblAddRow(this)">+ 행</button>' +
+    '<button type="button" onclick="tblAddCol(this)">+ 열</button>' +
+    '<button type="button" class="danger" onclick="tblDelete(this)">표 삭제</button>' +
+    '</div>';
+  const table = document.createElement('table');
+  table.className = 'dr-table';
+  const thead = document.createElement('thead');
+  const htr = document.createElement('tr');
+  for (let c = 0; c < cols; c++) htr.appendChild(makeCell('th', '제목 ' + (c + 1)));
+  thead.appendChild(htr);
+  const tbody = document.createElement('tbody');
+  for (let r = 0; r < rows; r++) {
+    const tr = document.createElement('tr');
+    for (let c = 0; c < cols; c++) tr.appendChild(makeCell('td', '내용'));
+    tbody.appendChild(tr);
+  }
+  table.appendChild(thead); table.appendChild(tbody);
+  wrap.appendChild(table);
+  return wrap;
+}
+function tblAddRow(btn) {
+  const table = btn.closest('.tbl-wrap').querySelector('table');
+  const cols = table.querySelector('tr').children.length;
+  const tr = document.createElement('tr');
+  for (let c = 0; c < cols; c++) tr.appendChild(makeCell('td', '내용'));
+  table.querySelector('tbody').appendChild(tr);
+  decorateTables();
+  debouncedSave();
+}
+function tblAddCol(btn) {
+  const table = btn.closest('.tbl-wrap').querySelector('table');
+  table.querySelectorAll('tr').forEach((tr, i) => {
+    const isHead = tr.parentElement.tagName === 'THEAD';
+    tr.appendChild(makeCell(isHead ? 'th' : 'td', isHead ? '제목' : '내용'));
+  });
+  decorateTables();
+  debouncedSave();
+}
+function tblDelete(btn) {
+  if (!confirm('이 표를 삭제할까요?')) return;
+  btn.closest('.tbl-wrap').remove();
+  debouncedSave();
+}
+function delRow(btn) {
+  const tr = btn.closest('tr');
+  const tbody = tr.parentElement;
+  if (tbody.tagName === 'THEAD') { alert('머리글 행은 삭제할 수 없습니다.'); return; }
+  tr.remove(); debouncedSave();
+}
+function delCol(btn) {
+  const th = btn.closest('th');
+  const idx = [...th.parentElement.children].indexOf(th);
+  const table = th.closest('table');
+  table.querySelectorAll('tr').forEach(tr => { if (tr.children[idx]) tr.children[idx].remove(); });
+  debouncedSave();
+}
+// add hover delete buttons to every editable table (idempotent)
+function decorateTables() {
+  document.querySelectorAll('.report-box .dr-table').forEach(table => {
+    // wrap bare tables (legacy) so tools attach
+    if (!table.closest('.tbl-wrap')) {
+      const wrap = document.createElement('div');
+      wrap.className = 'tbl-wrap';
+      table.parentNode.insertBefore(wrap, table);
+      const tools = document.createElement('div');
+      tools.className = 'tbl-tools'; tools.setAttribute('contenteditable','false');
+      tools.innerHTML =
+        '<button type="button" onclick="tblAddRow(this)">+ 행</button>' +
+        '<button type="button" onclick="tblAddCol(this)">+ 열</button>' +
+        '<button type="button" class="danger" onclick="tblDelete(this)">표 삭제</button>';
+      wrap.appendChild(tools); wrap.appendChild(table);
+    }
+    // row delete buttons (first cell of each body row)
+    table.querySelectorAll('tbody tr').forEach(tr => {
+      if (!tr.querySelector(':scope > td > .row-del') && tr.cells[0]) {
+        const b = document.createElement('button');
+        b.type='button'; b.className='row-del'; b.title='행 삭제'; b.textContent='×';
+        b.setAttribute('contenteditable','false');
+        b.setAttribute('onclick','delRow(this)');
+        b.style.left='-8px';
+        tr.cells[0].style.position='relative';
+        tr.cells[0].appendChild(b);
+      }
+    });
+    // col delete buttons (header cells)
+    table.querySelectorAll('thead th').forEach(th => {
+      if (!th.querySelector(':scope > .col-del')) {
+        const b = document.createElement('button');
+        b.type='button'; b.className='col-del'; b.title='열 삭제'; b.textContent='×';
+        b.setAttribute('contenteditable','false');
+        b.setAttribute('onclick','delCol(this)');
+        b.style.right='2px'; b.style.top='2px';
+        th.style.position='relative';
+        th.appendChild(b);
+      }
+    });
+  });
+}
+
+// === Panel editing toolbar: add paragraph / heading / list / table ===
+function panelAddBlock(btn, kind) {
+  const panel = btn.closest('.analysis-panel');
+  if (!panel) return;
+  let el;
+  if (kind === 'p')      { el = document.createElement('p'); el.textContent = '내용을 입력하세요...'; }
+  else if (kind === 'h') { el = document.createElement('h4'); el.textContent = '소제목'; }
+  else if (kind === 'ul') {
+    el = document.createElement('ul');
+    const li = document.createElement('li'); li.textContent = '항목'; el.appendChild(li);
+  }
+  else if (kind === 'callout') { el = document.createElement('div'); el.className = 'callout'; el.textContent = '강조 내용...'; }
+  else if (kind === 'table') { el = newEditableTable(3, 2); }
+  if (kind !== 'table') el.classList.add('editable-block');
+  if (kind !== 'table') el.setAttribute('contenteditable', 'true');
+  panel.appendChild(el);
+  decorateBlocks(); decorateTables();
+  if (el.focus) el.focus();
+  debouncedSave();
+}
+function delBlock(btn) {
+  const blk = btn.closest('.editable-block');
+  if (blk && confirm('이 줄을 삭제할까요?')) { blk.remove(); debouncedSave(); }
+}
+// add a small × to each top-level editable block in panels (p/h4/ul/callout)
+function decorateBlocks() {
+  document.querySelectorAll('.analysis-panel').forEach(panel => {
+    panel.querySelectorAll(':scope > p, :scope > h4, :scope > ul, :scope > ol, :scope > .callout').forEach(blk => {
+      blk.classList.add('editable-block');
+      if (!blk.querySelector(':scope > .blk-del')) {
+        const x = document.createElement('span');
+        x.className = 'blk-del'; x.textContent = '✕'; x.title = '줄 삭제';
+        x.setAttribute('contenteditable', 'false');
+        x.setAttribute('onclick', 'delBlock(this)');
+        blk.appendChild(x);
+      }
+    });
+  });
+}
+// inject the toolbar at top of every analysis panel (idempotent)
+function decoratePanelTools() {
+  document.querySelectorAll('.analysis-panel').forEach(panel => {
+    if (panel.querySelector(':scope > .panel-tools')) return;
+    const bar = document.createElement('div');
+    bar.className = 'panel-tools'; bar.setAttribute('contenteditable', 'false');
+    bar.innerHTML =
+      '<button type="button" onclick="panelAddBlock(this,\'h\')">+ 소제목</button>' +
+      '<button type="button" onclick="panelAddBlock(this,\'p\')">+ 문단</button>' +
+      '<button type="button" onclick="panelAddBlock(this,\'ul\')">+ 목록</button>' +
+      '<button type="button" onclick="panelAddBlock(this,\'callout\')">+ 강조박스</button>' +
+      '<button type="button" onclick="panelAddBlock(this,\'table\')">+ 표</button>';
+    // insert after h3 + subtitle if present, else at top
+    const after = panel.querySelector(':scope > .dr-subtitle') || panel.querySelector(':scope > h3');
+    if (after && after.nextSibling) panel.insertBefore(bar, after.nextSibling);
+    else if (after) panel.appendChild(bar);
+    else panel.insertBefore(bar, panel.firstChild);
+  });
+}
+
 function cycleDot(btn) {
   if (!editing) return;
   const td = btn.closest('td');
@@ -2327,11 +2587,23 @@ function cycleDot(btn) {
 function decorateCmpDots() {
   document.querySelectorAll('.cmp-table tbody td').forEach(td => {
     if (td.classList.contains('cmp-row')) return; // first column = label, no dot
-    if (td.querySelector(':scope > .cmp-dot')) return;
-    const b = document.createElement('button');
-    b.type = 'button'; b.className = 'cmp-dot'; b.title = '색 변경';
-    b.setAttribute('onclick', 'cycleDot(this)');
-    td.insertBefore(b, td.firstChild);
+    if (!td.querySelector(':scope > .cmp-dot')) {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'cmp-dot'; b.title = '점 색 변경';
+      b.setAttribute('contenteditable', 'false');
+      b.setAttribute('onclick', 'cycleDot(this)');
+      td.insertBefore(b, td.firstChild);
+    }
+    if (!td.querySelector(':scope > .cmp-bg')) {
+      const g = document.createElement('button');
+      g.type = 'button'; g.className = 'cmp-bg cell-tool bgsw'; g.title = '배경 색 변경';
+      g.setAttribute('contenteditable', 'false');
+      g.setAttribute('onclick', 'cycleCellBg(this)');
+      // place right after the dot
+      const dot = td.querySelector(':scope > .cmp-dot');
+      if (dot && dot.nextSibling) td.insertBefore(g, dot.nextSibling);
+      else td.insertBefore(g, td.firstChild);
+    }
   });
 }
 function panelIdForTab(tab, wrap) {
@@ -2454,6 +2726,9 @@ function rewireEvents() {
   document.querySelectorAll('.media-gallery').forEach(g => { try { wireGallery(g); } catch (_) {} });
   try { decorateLines(); } catch (_) {}
   try { decorateCmpDots(); } catch (_) {}
+  try { decoratePanelTools(); } catch (_) {}
+  try { decorateBlocks(); } catch (_) {}
+  try { decorateTables(); } catch (_) {}
 }
 document.addEventListener('input', e => {
   if (e.target.isContentEditable || e.target.closest('[contenteditable=true]')) debouncedSave();
