@@ -1803,7 +1803,9 @@
     </tbody>
   </table>
   <div class="callout" contenteditable="true">
-    <strong>주의
+    <strong>주의</strong>: Kimodo 네이밍은 <code>LeftLeg</code>가 허벅지, <code>LeftShin</code>이 종아리로, 일반 HumanIK의 <code>LeftUpLeg/LeftLeg</code> 패턴과 반대임. 또한 MH의 <code>spine_02</code>·<code>spine_04</code>와 twist/correction 본은 매핑하지 않고 rest로 유지함.
+  </div>
+</div>
     <div class="analysis-panel report-box an-violet" id="an-mocap-compare" hidden>
   <h3 contenteditable="true">모캡 방식 비교 — 모션 프로덕션 레디까지</h3>
   <div class="dr-subtitle" contenteditable="true">AI 생성 / 비디오→모션 / 모캡 슈트 3종을 소요시간 · 퀄리티 · 기타 관점에서 비교함.</div>
@@ -1854,6 +1856,12 @@ const DOC_ID = 'main';
 // ================================================================
 
 const STORAGE_KEY = 'ai-sota-mindmap-v7';
+// Safe localStorage wrappers (file:// or privacy modes may block storage and throw).
+const LS = {
+  get(k){ try { return window.localStorage.getItem(k); } catch(_) { return null; } },
+  set(k,v){ try { window.localStorage.setItem(k,v); return true; } catch(_) { return false; } },
+  remove(k){ try { window.localStorage.removeItem(k); } catch(_) {} }
+};
 const saveStatus = document.getElementById('save-status');
 const editBtn = document.getElementById('edit-btn');
 let saveTimer;
@@ -2006,7 +2014,7 @@ async function load() {
   if (cloud && db) {
     try { const s = await cloudLoad(); if (s) applyState(s); } catch (e) { console.error('load fail', e); }
   } else {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = LS.get(STORAGE_KEY);
     if (raw) { try { applyState(JSON.parse(raw)); } catch (e) {} }
   }
   rewireEvents();
@@ -2015,7 +2023,7 @@ async function save() {
   const state = collectState();
   try {
     if (cloud && db) await cloudSave(state);
-    else localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    else LS.set(STORAGE_KEY, JSON.stringify(state));
     flashSaved();
   } catch (e) { saveStatus.textContent = '저장 실패'; saveStatus.style.color = 'red'; console.error(e); }
 }
@@ -2093,8 +2101,7 @@ function renderLink(node) {
 
 function fetchGitHub(owner, repo, txt) {
   const key = 'ghc:' + owner + '/' + repo;
-  let cached = null;
-  try { cached = localStorage.getItem(key); } catch (_) {}
+  const cached = LS.get(key);
   if (cached) { txt.textContent = cached; return; }
   if (typeof fetch !== 'function') return;
   try {
@@ -2103,7 +2110,7 @@ function fetchGitHub(owner, repo, txt) {
     .then(j => {
       if (!j || !j.full_name) return;
       const label = j.full_name + (j.description ? ': ' + j.description : '');
-      try { localStorage.setItem(key, label); } catch (_) {}
+      LS.set(key, label);
       txt.textContent = label;
       debouncedSave();
     })
@@ -2437,7 +2444,7 @@ function importJSON(evt) {
 }
 function resetAll() {
   if (!confirm(cloud ? '이 브라우저의 임시 데이터를 비우고 클라우드 내용으로 다시 불러올까요?' : '모든 편집 내용을 초기화? (이 브라우저 저장분)')) return;
-  if (!cloud) localStorage.removeItem(STORAGE_KEY);
+  if (!cloud) LS.remove(STORAGE_KEY);
   location.reload();
 }
 </script>
