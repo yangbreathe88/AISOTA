@@ -174,13 +174,13 @@
     max-width: 1480px;
     margin: 0 auto;
     padding: 36px 32px 80px;
-    min-width: 1280px;
+    min-width: auto;
     position: relative;
   }
   .map {
     position: relative;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
     gap: 22px;
     margin-top: 8px;
     align-items: start;
@@ -760,13 +760,9 @@
 
   /* ---------- Node link row ---------- */
   .node-link {
-    display: flex; align-items: center; gap: 8px;
+    display: flex; flex-direction: column; gap: 4px;
     margin-top: 8px;
-    padding: 7px 10px;
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-xs);
-    font-size: 12px;
+    background: none; border: none; padding: 0;
   }
   .node-link-ico { color: var(--ink-faint); font-size: 13px; flex: none; }
   .node-link-url {
@@ -942,6 +938,117 @@
   body.viewing .sublist-add,
   body.viewing .li-del { display: none !important; }
 
+  /* ---------- Dynamic categories ---------- */
+  .cat-red{--accent:var(--red)} .cat-blue{--accent:var(--gauss)}
+  .cat-violet{--accent:var(--gen3d)} .cat-teal{--accent:var(--motion)}
+  .cat-gold{--accent:var(--gold)} .cat-orange{--accent:var(--orange)}
+  .cat-pink{--accent:#e64980} .cat-cyan{--accent:#0c8599}
+  .branch[class*="cat-"] .branch-head { color: var(--accent); }
+  .branch[class*="cat-"] .branch-head::before { background: var(--accent); }
+  .legend-dot[class*="cat-"] {
+    background: color-mix(in srgb, var(--accent) 15%, white);
+    color: var(--accent);
+  }
+  .cat-del {
+    position: absolute; top: 8px; right: 10px;
+    color: var(--ink-faint); cursor: pointer;
+    font-size: 14px; line-height: 1; user-select: none; display: none;
+  }
+  .cat-del:hover { color: var(--red); }
+  body:not(.viewing) .branch[class*="cat-"] .cat-del { display: inline; }
+  .add-cat {
+    border: 1.5px dashed var(--border-strong);
+    border-radius: var(--radius);
+    align-self: start;
+    min-height: 92px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 4px;
+    color: var(--ink-faint); font-size: 13px; font-weight: 600;
+    cursor: pointer; background: transparent;
+  }
+  .add-cat .ico { font-size: 22px; font-weight: 300; line-height: 1; }
+  .add-cat:hover { border-color: var(--gauss); color: var(--gauss); background: var(--gauss-soft); }
+  body.viewing .add-cat { display: none; }
+
+  /* ---------- Analysis tabs ---------- */
+  .an-red{--ac:var(--red)} .an-blue{--ac:var(--gauss)}
+  .an-violet{--ac:var(--gen3d)} .an-teal{--ac:var(--motion)}
+  .an-gold{--ac:var(--gold)} .an-orange{--ac:var(--orange)}
+  .an-pink{--ac:#e64980} .an-cyan{--ac:#0c8599}
+  .analysis { max-width: 1480px; margin: 24px auto 0; }
+  .analysis-tabs {
+    display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+  .analysis-tab {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 9px 16px; cursor: pointer; user-select: none;
+    font-weight: 700; font-size: 14px; color: var(--ac);
+    background: var(--surface-2);
+    border: 1px solid var(--border); border-bottom: none;
+    border-radius: 10px 10px 0 0;
+    position: relative; top: 1px;
+  }
+  .analysis-tab.active { background: var(--surface); border-bottom: 2px solid var(--ac); }
+  .analysis-tab .at-label:focus { outline: none; }
+  .analysis-tab .at-del { color: var(--ink-faint); font-size: 13px; display: none; }
+  .analysis-tab:hover .at-del { display: inline; }
+  body.viewing .analysis-tab .at-del { display: none !important; }
+  .at-del:hover { color: var(--red); }
+  .analysis-add {
+    border: 1px dashed var(--border-strong); background: transparent;
+    color: var(--ink-faint); font-size: 16px; font-weight: 700; line-height: 1;
+    width: 32px; height: 32px; border-radius: 8px; cursor: pointer;
+    font-family: inherit;
+  }
+  .analysis-add:hover { border-color: var(--gauss); color: var(--gauss); }
+  body.viewing .analysis-add { display: none; }
+  .analysis-panel {
+    margin-top: 0;
+    border-top: 3px solid var(--ac);
+    border-radius: 0 0 var(--radius) var(--radius);
+  }
+  .analysis-panel h3 { color: var(--ac); }
+  .analysis-panel .callout { border-left-color: var(--ac); }
+  .analysis-panel[hidden] { display: none; }
+
+  /* ---------- Link chip (inline rich preview) ---------- */
+  .nl-chip {
+    display: inline-flex; align-items: center; gap: 7px;
+    align-self: flex-start; max-width: 100%; min-width: 0;
+    text-decoration: none; color: var(--ink);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 5px 13px 5px 9px;
+    font-size: 12px; line-height: 1.3;
+    transition: border-color .15s, background .15s;
+  }
+  .nl-chip:hover { border-color: var(--border-strong); background: var(--surface); }
+  .nl-chip[hidden] { display: none; }
+  .nl-ico {
+    flex: none; width: 16px; height: 16px;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--ink-dim); font-size: 13px;
+  }
+  .nl-ico.gh { color: #1f2328; }
+  .nl-ico svg, .nl-ico img { width: 16px; height: 16px; display: block; border-radius: 3px; }
+  .nl-text {
+    min-width: 0; flex: 1;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    color: var(--ink);
+  }
+  .nl-edit {
+    font-family: var(--mono); font-size: 11px; color: var(--gauss);
+    word-break: break-all; line-height: 1.4;
+    padding: 1px 4px; border-radius: 4px;
+  }
+  .nl-edit[contenteditable="true"]:empty::before {
+    content: attr(data-placeholder);
+    color: var(--ink-faint); font-family: var(--font); font-style: italic;
+  }
+  body.viewing .nl-edit { display: none; }
+
   /* ---------- Motion ---------- */
   @keyframes rise {
     from { opacity: 0; transform: translateY(12px); }
@@ -1004,10 +1111,9 @@
         <select class="status-select" title="상태 라벨" onclick="event.stopPropagation()"><option value="none">— 없음</option><option value="sota">★ SOTA</option><option value="partial" selected>△ 제한적</option><option value="unverified">○ 미검증</option><option value="failed">× 실패</option></select>
       </div>
       <div class="node-title" contenteditable="true">Hunyuan World 2.0</div>
-      <div class="node-link">
-        <span class="node-link-ico" aria-hidden="true">↗</span>
-        <span class="node-link-url" contenteditable="true" data-placeholder="git / 링크 주소 입력...">https://github.com/Tencent-Hunyuan/HY-World-2.0</span>
-        <a class="node-link-go hidden" target="_blank" rel="noopener" title="새 탭에서 열기">열기</a>
+      <div class="node-link" data-url="https://github.com/Tencent-Hunyuan/HY-World-2.0">
+        <a class="nl-chip" target="_blank" rel="noopener" hidden><span class="nl-ico"></span><span class="nl-text"></span></a>
+        <span class="nl-edit" contenteditable="true" data-placeholder="git / 링크 주소 입력...">https://github.com/Tencent-Hunyuan/HY-World-2.0</span>
       </div>
       <div class="node-tagline" contenteditable="true">Tencent · text/image/panorama → 3DGS world</div>
       <ul class="sub-list">
@@ -1033,10 +1139,9 @@
         <select class="status-select" title="상태 라벨" onclick="event.stopPropagation()"><option value="none">— 없음</option><option value="sota">★ SOTA</option><option value="partial">△ 제한적</option><option value="unverified">○ 미검증</option><option value="failed" selected>× 실패</option></select>
       </div>
       <div class="node-title" contenteditable="true">G4Splat</div>
-      <div class="node-link">
-        <span class="node-link-ico" aria-hidden="true">↗</span>
-        <span class="node-link-url" contenteditable="true" data-placeholder="git / 링크 주소 입력...">https://github.com/DaLi-Jack/G4Splat</span>
-        <a class="node-link-go hidden" target="_blank" rel="noopener" title="새 탭에서 열기">열기</a>
+      <div class="node-link" data-url="https://github.com/DaLi-Jack/G4Splat">
+        <a class="nl-chip" target="_blank" rel="noopener" hidden><span class="nl-ico"></span><span class="nl-text"></span></a>
+        <span class="nl-edit" contenteditable="true" data-placeholder="git / 링크 주소 입력...">https://github.com/DaLi-Jack/G4Splat</span>
       </div>
       <div class="node-tagline" contenteditable="true">ICLR 2026 · Geometry + See3D prior</div>
       <ul class="sub-list">
@@ -1064,10 +1169,9 @@
         <select class="status-select" title="상태 라벨" onclick="event.stopPropagation()"><option value="none">— 없음</option><option value="sota">★ SOTA</option><option value="partial">△ 제한적</option><option value="unverified" selected>○ 미검증</option><option value="failed">× 실패</option></select>
       </div>
       <div class="node-title" contenteditable="true">Sana WM</div>
-      <div class="node-link">
-        <span class="node-link-ico" aria-hidden="true">↗</span>
-        <span class="node-link-url" contenteditable="true" data-placeholder="git / 링크 주소 입력...">https://nvlabs.github.io/Sana/WM/</span>
-        <a class="node-link-go hidden" target="_blank" rel="noopener" title="새 탭에서 열기">열기</a>
+      <div class="node-link" data-url="https://nvlabs.github.io/Sana/WM/">
+        <a class="nl-chip" target="_blank" rel="noopener" hidden><span class="nl-ico"></span><span class="nl-text"></span></a>
+        <span class="nl-edit" contenteditable="true" data-placeholder="git / 링크 주소 입력...">https://nvlabs.github.io/Sana/WM/</span>
       </div>
       <div class="node-tagline" contenteditable="true">NVIDIA · World Model (Sana 기반)</div>
       <ul class="sub-list">
@@ -1101,10 +1205,9 @@
         <select class="status-select" title="상태 라벨" onclick="event.stopPropagation()"><option value="none">— 없음</option><option value="sota" selected>★ SOTA</option><option value="partial">△ 제한적</option><option value="unverified">○ 미검증</option><option value="failed">× 실패</option></select>
       </div>
       <div class="node-title" contenteditable="true">Pixel3D</div>
-      <div class="node-link">
-        <span class="node-link-ico" aria-hidden="true">↗</span>
-        <span class="node-link-url" contenteditable="true" data-placeholder="git / 링크 주소 입력..."></span>
-        <a class="node-link-go hidden" target="_blank" rel="noopener" title="새 탭에서 열기">열기</a>
+      <div class="node-link" data-url="">
+        <a class="nl-chip" target="_blank" rel="noopener" hidden><span class="nl-ico"></span><span class="nl-text"></span></a>
+        <span class="nl-edit" contenteditable="true" data-placeholder="git / 링크 주소 입력..."></span>
       </div>
       <div class="node-tagline" contenteditable="true">image → mesh · 현 3D 생성 SOTA</div>
       <ul class="sub-list">
@@ -1129,10 +1232,9 @@
         <select class="status-select" title="상태 라벨" onclick="event.stopPropagation()"><option value="none">— 없음</option><option value="sota" selected>★ SOTA</option><option value="partial">△ 제한적</option><option value="unverified">○ 미검증</option><option value="failed">× 실패</option></select>
       </div>
       <div class="node-title" contenteditable="true">Reconstruction-by-Generation</div>
-      <div class="node-link">
-        <span class="node-link-ico" aria-hidden="true">↗</span>
-        <span class="node-link-url" contenteditable="true" data-placeholder="git / 링크 주소 입력...">https://reconstruction-by-generation.github.io/</span>
-        <a class="node-link-go hidden" target="_blank" rel="noopener" title="새 탭에서 열기">열기</a>
+      <div class="node-link" data-url="https://reconstruction-by-generation.github.io/">
+        <a class="nl-chip" target="_blank" rel="noopener" hidden><span class="nl-ico"></span><span class="nl-text"></span></a>
+        <span class="nl-edit" contenteditable="true" data-placeholder="git / 링크 주소 입력...">https://reconstruction-by-generation.github.io/</span>
       </div>
       <div class="node-tagline" contenteditable="true">Generative prior 기반 · 희소 뷰(5~10장) 재구성</div>
       <ul class="sub-list">
@@ -1158,10 +1260,9 @@
         <select class="status-select" title="상태 라벨" onclick="event.stopPropagation()"><option value="none" selected>— 없음</option><option value="sota">★ SOTA</option><option value="partial">△ 제한적</option><option value="unverified">○ 미검증</option><option value="failed">× 실패</option></select>
       </div>
       <div class="node-title" contenteditable="true">UV 후처리</div>
-      <div class="node-link">
-        <span class="node-link-ico" aria-hidden="true">↗</span>
-        <span class="node-link-url" contenteditable="true" data-placeholder="git / 링크 주소 입력..."></span>
-        <a class="node-link-go hidden" target="_blank" rel="noopener" title="새 탭에서 열기">열기</a>
+      <div class="node-link" data-url="">
+        <a class="nl-chip" target="_blank" rel="noopener" hidden><span class="nl-ico"></span><span class="nl-text"></span></a>
+        <span class="nl-edit" contenteditable="true" data-placeholder="git / 링크 주소 입력..."></span>
       </div>
       <div class="node-tagline" contenteditable="true">3D 생성 mesh의 UV 정리 단계 (필수)</div>
       <ul class="sub-list">
@@ -1195,10 +1296,9 @@
         <select class="status-select" title="상태 라벨" onclick="event.stopPropagation()"><option value="none">— 없음</option><option value="sota" selected>★ SOTA</option><option value="partial">△ 제한적</option><option value="unverified">○ 미검증</option><option value="failed">× 실패</option></select>
       </div>
       <div class="node-title" contenteditable="true">EffectErase</div>
-      <div class="node-link">
-        <span class="node-link-ico" aria-hidden="true">↗</span>
-        <span class="node-link-url" contenteditable="true" data-placeholder="git / 링크 주소 입력...">https://github.com/FudanCVL/EffectErase</span>
-        <a class="node-link-go hidden" target="_blank" rel="noopener" title="새 탭에서 열기">열기</a>
+      <div class="node-link" data-url="https://github.com/FudanCVL/EffectErase">
+        <a class="nl-chip" target="_blank" rel="noopener" hidden><span class="nl-ico"></span><span class="nl-text"></span></a>
+        <span class="nl-edit" contenteditable="true" data-placeholder="git / 링크 주소 입력...">https://github.com/FudanCVL/EffectErase</span>
       </div>
       <div class="node-tagline" contenteditable="true">Fudan CVL · 영상 객체 제거 (effect 단위)</div>
       <ul class="sub-list">
@@ -1223,10 +1323,9 @@
         <select class="status-select" title="상태 라벨" onclick="event.stopPropagation()"><option value="none">— 없음</option><option value="sota">★ SOTA</option><option value="partial">△ 제한적</option><option value="unverified" selected>○ 미검증</option><option value="failed">× 실패</option></select>
       </div>
       <div class="node-title" contenteditable="true">Image Blaster</div>
-      <div class="node-link">
-        <span class="node-link-ico" aria-hidden="true">↗</span>
-        <span class="node-link-url" contenteditable="true" data-placeholder="git / 링크 주소 입력...">https://github.com/neilsonnn/image-blaster</span>
-        <a class="node-link-go hidden" target="_blank" rel="noopener" title="새 탭에서 열기">열기</a>
+      <div class="node-link" data-url="https://github.com/neilsonnn/image-blaster">
+        <a class="nl-chip" target="_blank" rel="noopener" hidden><span class="nl-ico"></span><span class="nl-text"></span></a>
+        <span class="nl-edit" contenteditable="true" data-placeholder="git / 링크 주소 입력...">https://github.com/neilsonnn/image-blaster</span>
       </div>
       <div class="node-tagline" contenteditable="true">neilsonnn · 이미지 단위 빠른 도구</div>
       <ul class="sub-list">
@@ -1250,10 +1349,9 @@
         <select class="status-select" title="상태 라벨" onclick="event.stopPropagation()"><option value="none">— 없음</option><option value="sota">★ SOTA</option><option value="partial">△ 제한적</option><option value="unverified" selected>○ 미검증</option><option value="failed">× 실패</option></select>
       </div>
       <div class="node-title" contenteditable="true">Void Model</div>
-      <div class="node-link">
-        <span class="node-link-ico" aria-hidden="true">↗</span>
-        <span class="node-link-url" contenteditable="true" data-placeholder="git / 링크 주소 입력...">https://github.com/netflix/void-model</span>
-        <a class="node-link-go hidden" target="_blank" rel="noopener" title="새 탭에서 열기">열기</a>
+      <div class="node-link" data-url="https://github.com/netflix/void-model">
+        <a class="nl-chip" target="_blank" rel="noopener" hidden><span class="nl-ico"></span><span class="nl-text"></span></a>
+        <span class="nl-edit" contenteditable="true" data-placeholder="git / 링크 주소 입력...">https://github.com/netflix/void-model</span>
       </div>
       <div class="node-tagline" contenteditable="true">Netflix · production-grade matting/removal</div>
       <ul class="sub-list">
@@ -1287,10 +1385,9 @@
         <select class="status-select" title="상태 라벨" onclick="event.stopPropagation()"><option value="none" selected>— 없음</option><option value="sota">★ SOTA</option><option value="partial">△ 제한적</option><option value="unverified">○ 미검증</option><option value="failed">× 실패</option></select>
       </div>
       <div class="node-title" contenteditable="true">Kimodo</div>
-      <div class="node-link">
-        <span class="node-link-ico" aria-hidden="true">↗</span>
-        <span class="node-link-url" contenteditable="true" data-placeholder="git / 링크 주소 입력..."></span>
-        <a class="node-link-go hidden" target="_blank" rel="noopener" title="새 탭에서 열기">열기</a>
+      <div class="node-link" data-url="">
+        <a class="nl-chip" target="_blank" rel="noopener" hidden><span class="nl-ico"></span><span class="nl-text"></span></a>
+        <span class="nl-edit" contenteditable="true" data-placeholder="git / 링크 주소 입력..."></span>
       </div>
       <div class="node-tagline" contenteditable="true">NVIDIA · 텍스트 프롬프트 → 모션 (HumanIK 본)</div>
       <ul class="sub-list">
@@ -1315,10 +1412,9 @@
         <select class="status-select" title="상태 라벨" onclick="event.stopPropagation()"><option value="none" selected>— 없음</option><option value="sota">★ SOTA</option><option value="partial">△ 제한적</option><option value="unverified">○ 미검증</option><option value="failed">× 실패</option></select>
       </div>
       <div class="node-title" contenteditable="true">PromptHMR</div>
-      <div class="node-link">
-        <span class="node-link-ico" aria-hidden="true">↗</span>
-        <span class="node-link-url" contenteditable="true" data-placeholder="git / 링크 주소 입력..."></span>
-        <a class="node-link-go hidden" target="_blank" rel="noopener" title="새 탭에서 열기">열기</a>
+      <div class="node-link" data-url="">
+        <a class="nl-chip" target="_blank" rel="noopener" hidden><span class="nl-ico"></span><span class="nl-text"></span></a>
+        <span class="nl-edit" contenteditable="true" data-placeholder="git / 링크 주소 입력..."></span>
       </div>
       <div class="node-tagline" contenteditable="true">실사 영상 → SMPL 24-joint</div>
       <ul class="sub-list">
@@ -1344,10 +1440,9 @@
         <select class="status-select" title="상태 라벨" onclick="event.stopPropagation()"><option value="none" selected>— 없음</option><option value="sota">★ SOTA</option><option value="partial">△ 제한적</option><option value="unverified">○ 미검증</option><option value="failed">× 실패</option></select>
       </div>
       <div class="node-title" contenteditable="true">GVHMR</div>
-      <div class="node-link">
-        <span class="node-link-ico" aria-hidden="true">↗</span>
-        <span class="node-link-url" contenteditable="true" data-placeholder="git / 링크 주소 입력..."></span>
-        <a class="node-link-go hidden" target="_blank" rel="noopener" title="새 탭에서 열기">열기</a>
+      <div class="node-link" data-url="">
+        <a class="nl-chip" target="_blank" rel="noopener" hidden><span class="nl-ico"></span><span class="nl-text"></span></a>
+        <span class="nl-edit" contenteditable="true" data-placeholder="git / 링크 주소 입력..."></span>
       </div>
       <div class="node-tagline" contenteditable="true">gravity-view aware · 실사 영상 → SMPL</div>
       <ul class="sub-list">
@@ -1372,10 +1467,9 @@
         <select class="status-select" title="상태 라벨" onclick="event.stopPropagation()"><option value="none">— 없음</option><option value="sota">★ SOTA</option><option value="partial">△ 제한적</option><option value="unverified" selected>○ 미검증</option><option value="failed">× 실패</option></select>
       </div>
       <div class="node-title" contenteditable="true">Mocap Suit</div>
-      <div class="node-link">
-        <span class="node-link-ico" aria-hidden="true">↗</span>
-        <span class="node-link-url" contenteditable="true" data-placeholder="git / 링크 주소 입력..."></span>
-        <a class="node-link-go hidden" target="_blank" rel="noopener" title="새 탭에서 열기">열기</a>
+      <div class="node-link" data-url="">
+        <a class="nl-chip" target="_blank" rel="noopener" hidden><span class="nl-ico"></span><span class="nl-text"></span></a>
+        <span class="nl-edit" contenteditable="true" data-placeholder="git / 링크 주소 입력..."></span>
       </div>
       <div class="node-tagline" contenteditable="true">직접 캡쳐 (OptiTrack / Vicon / Rokoko / Xsens)</div>
       <ul class="sub-list">
@@ -1395,6 +1489,8 @@
 
     <button class="add-node-btn" onclick="addNode(this, 'motion')">+ 모델 추가</button>
   </div>
+
+  <div class="add-cat" onclick="addCategory()"><span class="ico">+</span>AI 카테고리 추가</div>
 
 </div>
 
@@ -1446,8 +1542,15 @@
   </ul>
 </div>
 
-<!-- Sticky: G4Splat debug analysis -->
-<div class="report-box debug-report" id="debug-report">
+<!-- Sticky: analysis (tabbed) -->
+<div class="analysis" id="analysis">
+  <div class="analysis-tabs">
+    <div class="analysis-tab an-red active" onclick="activateTab(this)"><span class="at-label" contenteditable="true">G4Splat 디버그 분석</span><span class="at-del" contenteditable="false" onclick="deleteAnalysis(event,this)" title="삭제">×</span></div>
+    <div class="analysis-tab an-blue" onclick="activateTab(this)"><span class="at-label" contenteditable="true">리타게팅 분석</span><span class="at-del" contenteditable="false" onclick="deleteAnalysis(event,this)" title="삭제">×</span></div>
+    <button class="analysis-add" type="button" title="분석 리포트 추가" onclick="addAnalysis()">+</button>
+  </div>
+  <div class="analysis-body">
+    <div class="analysis-panel report-box an-red" id="an-g4splat">
   <h3 contenteditable="true">G4Splat 디버그 분석</h3>
   <div class="dr-subtitle" contenteditable="true">
     야간 RunPod 실험 (4클립 × A100 80GB) — 1클립 성공 / 3클립 실패 원인 분석
@@ -1584,9 +1687,7 @@
     <li contenteditable="true"><strong>대안 전환</strong> — Reconstruction-by-Generation 검토 (단, 환경 전체 스캔 용도가 아님에 유의)</li>
   </ol>
 </div>
-
-<!-- Sticky: retargeting analysis (motion) -->
-<div class="report-box retarget-report" id="retarget-report">
+    <div class="analysis-panel report-box an-blue" id="an-retarget" hidden>
   <h3 contenteditable="true">리타게팅 분석 (모션 → MetaHuman)</h3>
   <div class="dr-subtitle" contenteditable="true">
     AI 모션 출력(Kimodo·PromptHMR·GVHMR)의 공통 블로커 — source skeleton → MetaHuman body 적용 단계 분석
@@ -1661,6 +1762,8 @@
     <strong>주의</strong>: Kimodo 네이밍은 <code>LeftLeg</code>가 허벅지, <code>LeftShin</code>이 종아리로, 일반 HumanIK의 <code>LeftUpLeg/LeftLeg</code> 패턴과 반대임. 또한 MH의 <code>spine_02</code>·<code>spine_04</code>와 twist/correction 본은 매핑하지 않고 rest로 유지함.
   </div>
 </div>
+  </div>
+</div>
 
 </div>
 
@@ -1672,7 +1775,7 @@ const SUPABASE_ANON_KEY = '';   // project anon public key
 const DOC_ID = 'main';
 // ================================================================
 
-const STORAGE_KEY = 'ai-sota-mindmap-v5';
+const STORAGE_KEY = 'ai-sota-mindmap-v7';
 const saveStatus = document.getElementById('save-status');
 const editBtn = document.getElementById('edit-btn');
 let saveTimer;
@@ -1680,11 +1783,10 @@ let editing = false;
 
 const cloud = !!(SUPABASE_URL && SUPABASE_ANON_KEY);
 let db = null;
-if (cloud && window.supabase) {
-  db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-}
+if (cloud && window.supabase) db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const STATUS_CLASSES = ['sota', 'partial', 'unverified', 'failed'];
+const EDIT_EXCLUDE = '[contenteditable]:not(.li-del):not(.cat-del):not(.at-del)';
 const wiredNodes = new WeakSet();
 const wiredBranches = new WeakSet();
 const wiredGalleries = new WeakSet();
@@ -1693,331 +1795,7 @@ let draggingNode = null;
 let uidCounter = 0;
 function uid() { return Date.now().toString(36) + (uidCounter++).toString(36); }
 
-// ============ State (de)serialize ============
-function serializeMapHtml() {
-  const clone = document.getElementById('map').cloneNode(true);
-  clone.querySelectorAll('.node').forEach(n => {
-    n.classList.remove('dragging');
-    n.removeAttribute('draggable');
-  });
-  clone.querySelectorAll('.li-del').forEach(n => n.remove());
-  return clone.innerHTML;
-}
-
-function collectState() {
-  return {
-    html: serializeMapHtml(),
-    headerH1: document.querySelector('h1').innerHTML,
-    headerSub: document.querySelector('.subtitle').innerHTML,
-    summary: document.querySelector('.summary').innerHTML,
-    actions: document.querySelector('.actions').innerHTML,
-    debugReport: document.querySelector('.debug-report')?.innerHTML,
-    retargetReport: document.querySelector('.retarget-report')?.innerHTML,
-    saved: new Date().toISOString(),
-  };
-}
-
-function applyState(data) {
-  if (data.html) document.getElementById('map').innerHTML = data.html;
-  if (data.headerH1) document.querySelector('h1').innerHTML = data.headerH1;
-  if (data.headerSub) document.querySelector('.subtitle').innerHTML = data.headerSub;
-  if (data.summary) document.querySelector('.summary').innerHTML = data.summary;
-  if (data.actions) document.querySelector('.actions').innerHTML = data.actions;
-  if (data.debugReport && document.querySelector('.debug-report')) {
-    document.querySelector('.debug-report').innerHTML = data.debugReport;
-  }
-  if (data.retargetReport && document.querySelector('.retarget-report')) {
-    document.querySelector('.retarget-report').innerHTML = data.retargetReport;
-  }
-}
-
-// ============ Persistence (cloud or local) ============
-async function cloudLoad() {
-  const { data, error } = await db.from('mindmap').select('data').eq('id', DOC_ID).maybeSingle();
-  if (error) { console.error('cloud load', error); return null; }
-  return data ? data.data : null;
-}
-async function cloudSave(state) {
-  const { error } = await db.from('mindmap')
-    .upsert({ id: DOC_ID, data: state, updated_at: new Date().toISOString() });
-  if (error) throw error;
-}
-
-async function load() {
-  if (cloud && db) {
-    try {
-      const state = await cloudLoad();
-      if (state) applyState(state);
-    } catch (e) { console.error('load fail', e); }
-  } else {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) { try { applyState(JSON.parse(raw)); } catch (e) {} }
-  }
-  rewireEvents();
-}
-
-async function save() {
-  const state = collectState();
-  try {
-    if (cloud && db) await cloudSave(state);
-    else localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    flashSaved();
-  } catch (e) {
-    saveStatus.textContent = '저장 실패';
-    saveStatus.style.color = 'red';
-    console.error(e);
-  }
-}
-
-function flashSaved() {
-  saveStatus.textContent = cloud ? '클라우드 저장됨' : '저장됨';
-  saveStatus.className = 'save-status saved';
-  setTimeout(() => {
-    saveStatus.textContent = editing ? '편집 중' : '보기 모드';
-    saveStatus.className = 'save-status';
-  }, 1400);
-}
-
-function debouncedSave() {
-  if (!editing) return;
-  saveStatus.textContent = '저장 중...';
-  saveStatus.className = 'save-status';
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(save, 700);
-}
-
-// ============ View / edit mode ============
-function setEditing(on) {
-  editing = on;
-  document.body.classList.toggle('viewing', !on);
-  document.querySelectorAll('[contenteditable]:not(.li-del)').forEach(el =>
-    el.setAttribute('contenteditable', on ? 'true' : 'false'));
-  if (editBtn) {
-    editBtn.textContent = on ? '✓ 편집 잠그기' : '✎ 편집';
-    editBtn.classList.toggle('active', on);
-  }
-  saveStatus.textContent = on ? '편집 중' : '보기 모드';
-  saveStatus.className = 'save-status';
-}
-function toggleEdit() { setEditing(!editing); }
-
-function toggleFullscreen() {
-  const el = document.documentElement;
-  if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-    const req = el.requestFullscreen || el.webkitRequestFullscreen;
-    if (req) req.call(el);
-  } else {
-    const exit = document.exitFullscreen || document.webkitExitFullscreen;
-    if (exit) exit.call(document);
-  }
-}
-function openSelf() { window.open(location.href, "_blank", "noopener"); }
-
-// ============ Status label ============
-function currentStatus(node) {
-  for (const c of STATUS_CLASSES) if (node.classList.contains(c)) return c;
-  return 'none';
-}
-function setStatus(node, val) {
-  STATUS_CLASSES.forEach(c => node.classList.remove(c));
-  if (val && val !== 'none') node.classList.add(val);
-}
-
-// ============ Link row ============
-function syncLink(node) {
-  const url = node.querySelector('.node-link-url');
-  const go = node.querySelector('.node-link-go');
-  if (!url || !go) return;
-  const v = url.textContent.trim();
-  if (v) {
-    go.href = /^https?:\/\//i.test(v) ? v : 'https://' + v;
-    go.classList.remove('hidden');
-  } else {
-    go.removeAttribute('href');
-    go.classList.add('hidden');
-  }
-}
-
-// ============ Drag reorder ============
-function getDragAfter(branch, y) {
-  const nodes = [...branch.querySelectorAll('.node:not(.dragging)')];
-  let closest = { offset: -Infinity, el: null };
-  for (const n of nodes) {
-    const box = n.getBoundingClientRect();
-    const offset = y - box.top - box.height / 2;
-    if (offset < 0 && offset > closest.offset) closest = { offset, el: n };
-  }
-  return closest.el;
-}
-
-// ============ Media (link based) ============
-function hostOf(u) {
-  try { return new URL(u).hostname.replace(/^www\./, ''); } catch (_) { return '링크'; }
-}
-function classifyUrl(u) {
-  const drive = u.match(/drive\.google\.com\/file\/d\/([^/]+)/) || (/drive\.google\.com/.test(u) && u.match(/[?&]id=([^&]+)/));
-  if (drive) return { type: 'iframe', src: `https://drive.google.com/file/d/${drive[1]}/preview` };
-  const yt = u.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
-  if (yt) return { type: 'iframe', src: `https://www.youtube.com/embed/${yt[1]}` };
-  const vm = u.match(/vimeo\.com\/(\d+)/);
-  if (vm) return { type: 'iframe', src: `https://player.vimeo.com/video/${vm[1]}` };
-  if (/\.(png|jpe?g|gif|webp|svg|avif)(\?|$)/i.test(u)) return { type: 'image', src: u };
-  if (/\.(mp4|webm|ogg|mov|m4v)(\?|$)/i.test(u)) return { type: 'video', src: u };
-  return { type: 'link', src: u };
-}
-function buildMediaItem(url, caption) {
-  const { type, src } = classifyUrl(url);
-  const item = document.createElement('div');
-  item.className = 'media-item';
-  item.dataset.url = url;
-  item.dataset.mtype = type;
-  let inner;
-  if (type === 'image') inner = `<img src="${src}" alt="">`;
-  else if (type === 'video') inner = `<video src="${src}" muted loop playsinline></video>`;
-  else if (type === 'iframe') inner = `<iframe src="${src}" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>`;
-  else inner = `<div class="media-card"><span class="mc-ico">↗</span><span class="mc-host">${hostOf(url)}</span></div>`;
-  const frame = document.createElement('div');
-  frame.className = 'media-frame';
-  frame.innerHTML = inner + '<button type="button" class="media-remove" title="삭제">×</button>';
-  const cap = document.createElement('div');
-  cap.className = 'media-cap';
-  cap.setAttribute('contenteditable', editing ? 'true' : 'false');
-  cap.setAttribute('data-placeholder', '설명 / 각주 입력...');
-  if (caption) cap.textContent = caption;
-  item.appendChild(frame);
-  item.appendChild(cap);
-  return item;
-}
-function addMediaByUrl(gallery) {
-  const url = prompt('이미지 / 영상 / 구글드라이브 / 유튜브 / Vimeo 링크를 붙여넣으세요:');
-  if (!url || !url.trim()) return;
-  const item = buildMediaItem(url.trim());
-  gallery.insertBefore(item, gallery.querySelector('.media-add'));
-  wireMediaItem(item);
-  debouncedSave();
-}
-function wireMediaItem(item) {
-  if (wiredItems.has(item)) return;
-  wiredItems.add(item);
-  const frame = item.querySelector('.media-frame');
-  const rm = item.querySelector('.media-remove');
-  if (rm) rm.addEventListener('click', e => { e.stopPropagation(); item.remove(); debouncedSave(); });
-  const type = item.dataset.mtype, url = item.dataset.url;
-  if (frame && (type === 'image' || type === 'video')) {
-    frame.style.cursor = 'zoom-in';
-    frame.addEventListener('click', () => openLightbox(type, url));
-  } else if (frame && type === 'link') {
-    frame.style.cursor = 'pointer';
-    frame.addEventListener('click', () => window.open(url, '_blank', 'noopener'));
-  }
-}
-
-// ============ Sub-list line add / delete ============
-function decorateLine(li) {
-  if (li.querySelector(':scope > .li-del')) return;
-  const x = document.createElement('span');
-  x.className = 'li-del';
-  x.setAttribute('contenteditable', 'false');
-  x.title = '줄 삭제';
-  x.textContent = '×';
-  li.appendChild(x);
-}
-function decorateLines() {
-  document.querySelectorAll('.sub-list li').forEach(decorateLine);
-}
-function addLine(btn, type) {
-  const ul = btn.parentElement.previousElementSibling;
-  if (!ul || !ul.classList.contains('sub-list')) return;
-  const li = document.createElement('li');
-  li.className = type;
-  li.setAttribute('contenteditable', 'true');
-  li.textContent = type === 'plus' ? '장점 입력' : type === 'minus' ? '단점 입력' : '주의 입력';
-  ul.appendChild(li);
-  decorateLine(li);
-  li.focus();
-  debouncedSave();
-}
-function openLightbox(type, url) {
-  let lb = document.getElementById('media-lightbox');
-  if (!lb) {
-    lb = document.createElement('div');
-    lb.id = 'media-lightbox';
-    lb.addEventListener('click', () => { lb.style.display = 'none'; lb.innerHTML = ''; });
-    document.body.appendChild(lb);
-  }
-  lb.innerHTML = '';
-  let el;
-  if (type === 'video') { el = document.createElement('video'); el.src = url; el.controls = true; el.autoplay = true; }
-  else { el = document.createElement('img'); el.src = url; }
-  lb.appendChild(el);
-  lb.style.display = 'flex';
-}
-
-// ============ Node wiring ============
-function wireNode(node) {
-  if (wiredNodes.has(node)) return;
-  wiredNodes.add(node);
-
-  const sel = node.querySelector('.status-select');
-  if (sel) {
-    sel.value = currentStatus(node);
-    sel.addEventListener('change', () => { setStatus(node, sel.value); debouncedSave(); });
-  }
-  const url = node.querySelector('.node-link-url');
-  if (url) url.addEventListener('input', () => syncLink(node));
-  syncLink(node);
-
-  const handle = node.querySelector('.drag-handle');
-  if (handle) {
-    handle.addEventListener('pointerdown', () => { if (editing) node.setAttribute('draggable', 'true'); });
-    handle.addEventListener('pointerup', () => node.removeAttribute('draggable'));
-  }
-  node.addEventListener('dragstart', e => {
-    if (node.getAttribute('draggable') !== 'true') return;
-    draggingNode = node;
-    node.classList.add('dragging');
-    e.dataTransfer.effectAllowed = 'move';
-    try { e.dataTransfer.setData('text/plain', ''); } catch (_) {}
-  });
-  node.addEventListener('dragend', () => {
-    node.classList.remove('dragging');
-    node.removeAttribute('draggable');
-    draggingNode = null;
-    debouncedSave();
-  });
-}
-
-function wireBranch(branch) {
-  if (wiredBranches.has(branch)) return;
-  wiredBranches.add(branch);
-  branch.addEventListener('dragover', e => {
-    if (!draggingNode) return;
-    e.preventDefault();
-    const after = getDragAfter(branch, e.clientY);
-    const btn = branch.querySelector('.add-node-btn');
-    if (after == null) {
-      if (btn) branch.insertBefore(draggingNode, btn);
-      else branch.appendChild(draggingNode);
-    } else {
-      branch.insertBefore(draggingNode, after);
-    }
-  });
-}
-
-function wireGallery(gallery) {
-  if (wiredGalleries.has(gallery)) return;
-  wiredGalleries.add(gallery);
-  const add = gallery.querySelector('.media-add');
-  if (add) add.addEventListener('click', () => addMediaByUrl(gallery));
-  gallery.querySelectorAll('.media-item').forEach(wireMediaItem);
-}
-
-// ============ Add node ============
-function addNode(btn, branchClass) {
-  const div = document.createElement('div');
-  div.className = 'node';
-  div.style.position = 'relative';
-  div.innerHTML = `
+const NODE_TEMPLATE = `
     <div class="node-controls">
       <span class="drag-handle" title="드래그하여 순서 변경" aria-hidden="true">⠿</span>
       <select class="status-select" title="상태 라벨" onclick="event.stopPropagation()">
@@ -2029,11 +1807,10 @@ function addNode(btn, branchClass) {
       </select>
     </div>
     <div class="node-title" contenteditable="true">신규 모델</div>
-    <div class="node-link">
-      <span class="node-link-ico" aria-hidden="true">↗</span>
-      <span class="node-link-url" contenteditable="true" data-placeholder="git / 링크 주소 입력..."></span>
-      <a class="node-link-go hidden" target="_blank" rel="noopener" title="새 탭에서 열기">열기</a>
-    </div>
+    <div class="node-link" data-url="">
+        <a class="nl-chip" target="_blank" rel="noopener" hidden><span class="nl-ico"></span><span class="nl-text"></span></a>
+        <span class="nl-edit" contenteditable="true" data-placeholder="git / 링크 주소 입력..."></span>
+      </div>
     <div class="node-tagline" contenteditable="true">간단 설명 입력...</div>
     <ul class="sub-list">
       <li class="plus" contenteditable="true">장점 입력</li>
@@ -2050,81 +1827,445 @@ function addNode(btn, branchClass) {
     </div>
     <button class="del-node" type="button" style="position:absolute;bottom:10px;right:10px;background:transparent;border:none;color:#aaa;cursor:pointer;font-size:13px;">삭제</button>
   `;
+function newNodeEl() {
+  const div = document.createElement('div');
+  div.className = 'node';
+  div.style.position = 'relative';
+  div.innerHTML = NODE_TEMPLATE;
+  return div;
+}
+
+// ============ State (de)serialize ============
+function serializeMapHtml() {
+  const clone = document.getElementById('map').cloneNode(true);
+  clone.querySelectorAll('.node').forEach(n => { n.classList.remove('dragging'); n.removeAttribute('draggable'); });
+  clone.querySelectorAll('.li-del').forEach(n => n.remove());
+  return clone.innerHTML;
+}
+function collectState() {
+  return {
+    html: serializeMapHtml(),
+    headerH1: document.querySelector('h1').innerHTML,
+    headerSub: document.querySelector('.subtitle').innerHTML,
+    summary: document.querySelector('.summary').innerHTML,
+    actions: document.querySelector('.actions').innerHTML,
+    analysis: document.getElementById('analysis')?.innerHTML,
+    saved: new Date().toISOString(),
+  };
+}
+function applyState(data) {
+  if (data.html) document.getElementById('map').innerHTML = data.html;
+  if (data.headerH1) document.querySelector('h1').innerHTML = data.headerH1;
+  if (data.headerSub) document.querySelector('.subtitle').innerHTML = data.headerSub;
+  if (data.summary) document.querySelector('.summary').innerHTML = data.summary;
+  if (data.actions) document.querySelector('.actions').innerHTML = data.actions;
+  const an = document.getElementById('analysis');
+  if (data.analysis && an) {
+    an.innerHTML = data.analysis;
+  } else {
+    if (data.debugReport) { const p = document.getElementById('an-g4splat'); if (p) p.innerHTML = data.debugReport; }
+    if (data.retargetReport) { const p = document.getElementById('an-retarget'); if (p) p.innerHTML = data.retargetReport; }
+  }
+}
+
+// ============ Persistence ============
+async function cloudLoad() {
+  const { data, error } = await db.from('mindmap').select('data').eq('id', DOC_ID).maybeSingle();
+  if (error) { console.error('cloud load', error); return null; }
+  return data ? data.data : null;
+}
+async function cloudSave(state) {
+  const { error } = await db.from('mindmap').upsert({ id: DOC_ID, data: state, updated_at: new Date().toISOString() });
+  if (error) throw error;
+}
+async function load() {
+  if (cloud && db) {
+    try { const s = await cloudLoad(); if (s) applyState(s); } catch (e) { console.error('load fail', e); }
+  } else {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) { try { applyState(JSON.parse(raw)); } catch (e) {} }
+  }
+  rewireEvents();
+}
+async function save() {
+  const state = collectState();
+  try {
+    if (cloud && db) await cloudSave(state);
+    else localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    flashSaved();
+  } catch (e) { saveStatus.textContent = '저장 실패'; saveStatus.style.color = 'red'; console.error(e); }
+}
+function flashSaved() {
+  saveStatus.textContent = cloud ? '클라우드 저장됨' : '저장됨';
+  saveStatus.className = 'save-status saved';
+  setTimeout(() => { saveStatus.textContent = editing ? '편집 중' : '보기 모드'; saveStatus.className = 'save-status'; }, 1400);
+}
+function debouncedSave() {
+  if (!editing) return;
+  saveStatus.textContent = '저장 중...';
+  saveStatus.className = 'save-status';
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(save, 700);
+}
+
+// ============ View / edit mode ============
+function setEditing(on) {
+  editing = on;
+  document.body.classList.toggle('viewing', !on);
+  document.querySelectorAll(EDIT_EXCLUDE).forEach(el => el.setAttribute('contenteditable', on ? 'true' : 'false'));
+  if (editBtn) { editBtn.textContent = on ? '✓ 편집 잠그기' : '✎ 편집'; editBtn.classList.toggle('active', on); }
+  saveStatus.textContent = on ? '편집 중' : '보기 모드';
+  saveStatus.className = 'save-status';
+}
+function toggleEdit() { setEditing(!editing); }
+function toggleFullscreen() {
+  const el = document.documentElement;
+  if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+    const req = el.requestFullscreen || el.webkitRequestFullscreen; if (req) req.call(el);
+  } else {
+    const exit = document.exitFullscreen || document.webkitExitFullscreen; if (exit) exit.call(document);
+  }
+}
+function openSelf() { window.open(location.href, '_blank', 'noopener'); }
+
+// ============ Status / link ============
+function currentStatus(node) { for (const c of STATUS_CLASSES) if (node.classList.contains(c)) return c; return 'none'; }
+function setStatus(node, val) { STATUS_CLASSES.forEach(c => node.classList.remove(c)); if (val && val !== 'none') node.classList.add(val); }
+const GH_SVG = '<svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>';
+
+function renderLink(node) {
+  const wrap = node.querySelector('.node-link');
+  if (!wrap) return;
+  const chip = wrap.querySelector('.nl-chip');
+  const ico = wrap.querySelector('.nl-ico');
+  const txt = wrap.querySelector('.nl-text');
+  if (!chip || !ico || !txt) return;
+  const raw = (wrap.dataset.url || '').trim();
+  if (!raw) { chip.hidden = true; return; }
+  const href = /^https?:\/\//i.test(raw) ? raw : 'https://' + raw;
+  chip.hidden = false;
+  chip.href = href;
+  const gh = href.match(/github\.com\/([^/]+)\/([^/?#]+)/i);
+  if (gh) {
+    const owner = gh[1], repo = gh[2].replace(/\.git$/, '');
+    ico.className = 'nl-ico gh';
+    ico.innerHTML = GH_SVG;
+    if (!txt.textContent.trim()) { txt.textContent = owner + '/' + repo; fetchGitHub(owner, repo, txt); }
+  } else {
+    ico.className = 'nl-ico';
+    let host = '링크';
+    try { host = new URL(href).hostname.replace(/^www\./, ''); } catch (_) {}
+    ico.innerHTML = '';
+    const img = document.createElement('img');
+    img.src = 'https://www.google.com/s2/favicons?domain=' + encodeURIComponent(host) + '&sz=64';
+    img.alt = '';
+    img.onerror = () => { ico.textContent = '↗'; };
+    ico.appendChild(img);
+    if (!txt.textContent.trim()) txt.textContent = host;
+  }
+}
+
+function fetchGitHub(owner, repo, txt) {
+  const key = 'ghc:' + owner + '/' + repo;
+  const cached = localStorage.getItem(key);
+  if (cached) { txt.textContent = cached; return; }
+  fetch('https://api.github.com/repos/' + owner + '/' + repo)
+    .then(r => r.ok ? r.json() : null)
+    .then(j => {
+      if (!j || !j.full_name) return;
+      const label = j.full_name + (j.description ? ': ' + j.description : '');
+      try { localStorage.setItem(key, label); } catch (_) {}
+      txt.textContent = label;
+      debouncedSave();
+    })
+    .catch(() => {});
+}
+
+// ============ Drag reorder ============
+function getDragAfter(branch, y) {
+  const nodes = [...branch.querySelectorAll('.node:not(.dragging)')];
+  let closest = { offset: -Infinity, el: null };
+  for (const n of nodes) {
+    const box = n.getBoundingClientRect();
+    const offset = y - box.top - box.height / 2;
+    if (offset < 0 && offset > closest.offset) closest = { offset, el: n };
+  }
+  return closest.el;
+}
+
+// ============ Media ============
+function hostOf(u) { try { return new URL(u).hostname.replace(/^www\./, ''); } catch (_) { return '링크'; } }
+function classifyUrl(u) {
+  const drive = u.match(/drive\.google\.com\/file\/d\/([^/]+)/) || (/drive\.google\.com/.test(u) && u.match(/[?&]id=([^&]+)/));
+  if (drive) return { type: 'iframe', src: `https://drive.google.com/file/d/${drive[1]}/preview` };
+  const yt = u.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
+  if (yt) return { type: 'iframe', src: `https://www.youtube.com/embed/${yt[1]}` };
+  const vm = u.match(/vimeo\.com\/(\d+)/);
+  if (vm) return { type: 'iframe', src: `https://player.vimeo.com/video/${vm[1]}` };
+  if (/\.(png|jpe?g|gif|webp|svg|avif)(\?|$)/i.test(u)) return { type: 'image', src: u };
+  if (/\.(mp4|webm|ogg|mov|m4v)(\?|$)/i.test(u)) return { type: 'video', src: u };
+  return { type: 'link', src: u };
+}
+function buildMediaItem(url, caption) {
+  const { type, src } = classifyUrl(url);
+  const item = document.createElement('div');
+  item.className = 'media-item'; item.dataset.url = url; item.dataset.mtype = type;
+  let inner;
+  if (type === 'image') inner = `<img src="${src}" alt="">`;
+  else if (type === 'video') inner = `<video src="${src}" muted loop playsinline></video>`;
+  else if (type === 'iframe') inner = `<iframe src="${src}" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>`;
+  else inner = `<div class="media-card"><span class="mc-ico">↗</span><span class="mc-host">${hostOf(url)}</span></div>`;
+  const frame = document.createElement('div'); frame.className = 'media-frame';
+  frame.innerHTML = inner + '<button type="button" class="media-remove" title="삭제">×</button>';
+  const cap = document.createElement('div'); cap.className = 'media-cap';
+  cap.setAttribute('contenteditable', editing ? 'true' : 'false');
+  cap.setAttribute('data-placeholder', '설명 / 각주 입력...');
+  if (caption) cap.textContent = caption;
+  item.appendChild(frame); item.appendChild(cap);
+  return item;
+}
+function addMediaByUrl(gallery) {
+  const url = prompt('이미지 / 영상 / 구글드라이브 / 유튜브 / Vimeo 링크를 붙여넣으세요:');
+  if (!url || !url.trim()) return;
+  const item = buildMediaItem(url.trim());
+  gallery.insertBefore(item, gallery.querySelector('.media-add'));
+  wireMediaItem(item);
+  debouncedSave();
+}
+function wireMediaItem(item) {
+  if (wiredItems.has(item)) return; wiredItems.add(item);
+  const frame = item.querySelector('.media-frame');
+  const rm = item.querySelector('.media-remove');
+  if (rm) rm.addEventListener('click', e => { e.stopPropagation(); item.remove(); debouncedSave(); });
+  const type = item.dataset.mtype, url = item.dataset.url;
+  if (frame && (type === 'image' || type === 'video')) { frame.style.cursor = 'zoom-in'; frame.addEventListener('click', () => openLightbox(type, url)); }
+  else if (frame && type === 'link') { frame.style.cursor = 'pointer'; frame.addEventListener('click', () => window.open(url, '_blank', 'noopener')); }
+}
+function openLightbox(type, url) {
+  let lb = document.getElementById('media-lightbox');
+  if (!lb) { lb = document.createElement('div'); lb.id = 'media-lightbox'; lb.addEventListener('click', () => { lb.style.display = 'none'; lb.innerHTML = ''; }); document.body.appendChild(lb); }
+  lb.innerHTML = '';
+  let el;
+  if (type === 'video') { el = document.createElement('video'); el.src = url; el.controls = true; el.autoplay = true; }
+  else { el = document.createElement('img'); el.src = url; }
+  lb.appendChild(el); lb.style.display = 'flex';
+}
+
+// ============ Sub-list lines ============
+function decorateLine(li) {
+  if (li.querySelector(':scope > .li-del')) return;
+  const x = document.createElement('span');
+  x.className = 'li-del'; x.setAttribute('contenteditable', 'false'); x.title = '줄 삭제'; x.textContent = '×';
+  li.appendChild(x);
+}
+function decorateLines() { document.querySelectorAll('.sub-list li').forEach(decorateLine); }
+function addLine(btn, type) {
+  const ul = btn.parentElement.previousElementSibling;
+  if (!ul || !ul.classList.contains('sub-list')) return;
+  const li = document.createElement('li');
+  li.className = type; li.setAttribute('contenteditable', 'true');
+  li.textContent = type === 'plus' ? '장점 입력' : type === 'minus' ? '단점 입력' : '주의 입력';
+  ul.appendChild(li); decorateLine(li); li.focus(); debouncedSave();
+}
+
+// ============ Node / branch / gallery wiring ============
+function wireNode(node) {
+  if (wiredNodes.has(node)) return; wiredNodes.add(node);
+  const sel = node.querySelector('.status-select');
+  if (sel) { sel.value = currentStatus(node); sel.addEventListener('change', () => { setStatus(node, sel.value); debouncedSave(); }); }
+  const ed = node.querySelector('.nl-edit');
+  const wrap = node.querySelector('.node-link');
+  if (ed && wrap) ed.addEventListener('input', () => {
+    wrap.dataset.url = ed.textContent.trim();
+    const t = wrap.querySelector('.nl-text'); if (t) t.textContent = '';
+    renderLink(node);
+  });
+  renderLink(node);
+  const del = node.querySelector('.del-node');
+  if (del) del.addEventListener('click', () => { if (confirm('삭제?')) { node.remove(); debouncedSave(); } });
+  const handle = node.querySelector('.drag-handle');
+  if (handle) {
+    handle.addEventListener('pointerdown', () => { if (editing) node.setAttribute('draggable', 'true'); });
+    handle.addEventListener('pointerup', () => node.removeAttribute('draggable'));
+  }
+  node.addEventListener('dragstart', e => {
+    if (node.getAttribute('draggable') !== 'true') return;
+    draggingNode = node; node.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', ''); } catch (_) {}
+  });
+  node.addEventListener('dragend', () => { node.classList.remove('dragging'); node.removeAttribute('draggable'); draggingNode = null; debouncedSave(); });
+}
+function wireBranch(branch) {
+  if (wiredBranches.has(branch)) return; wiredBranches.add(branch);
+  branch.addEventListener('dragover', e => {
+    if (!draggingNode) return;
+    e.preventDefault();
+    const after = getDragAfter(branch, e.clientY);
+    const btn = branch.querySelector('.add-node-btn');
+    if (after == null) { if (btn) branch.insertBefore(draggingNode, btn); else branch.appendChild(draggingNode); }
+    else branch.insertBefore(draggingNode, after);
+  });
+}
+function wireGallery(gallery) {
+  if (wiredGalleries.has(gallery)) return; wiredGalleries.add(gallery);
+  const add = gallery.querySelector('.media-add');
+  if (add) add.addEventListener('click', () => addMediaByUrl(gallery));
+  gallery.querySelectorAll('.media-item').forEach(wireMediaItem);
+}
+
+// ============ Add node ============
+function addNode(btn, branchClass) {
+  const div = newNodeEl();
   btn.parentNode.insertBefore(div, btn);
   wireNode(div);
   wireGallery(div.querySelector('.media-gallery'));
-  div.querySelector('.del-node').addEventListener('click', () => {
-    if (confirm('삭제?')) { div.remove(); debouncedSave(); }
-  });
-  // new nodes are added while editing, so keep them editable
   div.querySelectorAll('.sub-list li').forEach(decorateLine);
-  div.querySelectorAll('[contenteditable]:not(.li-del)').forEach(el => el.setAttribute('contenteditable', 'true'));
+  div.querySelectorAll(EDIT_EXCLUDE).forEach(el => el.setAttribute('contenteditable', 'true'));
   debouncedSave();
 }
 
-// ============ Event wiring ============
+// ============ Analysis tabs ============
+function activateTab(tab) {
+  const wrap = tab.closest('.analysis');
+  const tabs = [...wrap.querySelectorAll('.analysis-tab')];
+  const idx = tabs.indexOf(tab);
+  tabs.forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  wrap.querySelectorAll('.analysis-panel').forEach((p, i) => { p.hidden = (i !== idx); });
+  debouncedSave();
+}
+function nextAnColor() {
+  const pal = ['an-violet', 'an-teal', 'an-gold', 'an-orange', 'an-pink', 'an-cyan'];
+  return pal[document.querySelectorAll('#analysis .analysis-tab').length % pal.length];
+}
+function addAnalysis() {
+  const name = prompt('새 분석 리포트 제목:');
+  if (!name || !name.trim()) return;
+  const wrap = document.getElementById('analysis');
+  const tabsEl = wrap.querySelector('.analysis-tabs');
+  const body = wrap.querySelector('.analysis-body');
+  const color = nextAnColor();
+  const tab = document.createElement('div');
+  tab.className = 'analysis-tab ' + color;
+  tab.setAttribute('onclick', 'activateTab(this)');
+  tab.innerHTML = `<span class="at-label" contenteditable="true">${name}</span><span class="at-del" contenteditable="false" onclick="deleteAnalysis(event,this)" title="삭제">×</span>`;
+  tabsEl.insertBefore(tab, tabsEl.querySelector('.analysis-add'));
+  const panel = document.createElement('div');
+  panel.className = 'analysis-panel report-box ' + color;
+  panel.innerHTML = `<h3 contenteditable="true">${name}</h3>\n<div class="dr-subtitle" contenteditable="true">부제 입력...</div>\n<p contenteditable="true">분석 내용을 입력하세요...</p>`;
+  body.appendChild(panel);
+  activateTab(tab);
+  setEditing(editing);
+  debouncedSave();
+}
+function deleteAnalysis(event, el) {
+  event.stopPropagation();
+  const tab = el.closest('.analysis-tab');
+  const wrap = tab.closest('.analysis');
+  const tabs = [...wrap.querySelectorAll('.analysis-tab')];
+  if (tabs.length <= 1) { alert('최소 1개의 리포트는 필요합니다.'); return; }
+  if (!confirm('이 분석 리포트를 삭제할까요?')) return;
+  const idx = tabs.indexOf(tab);
+  const panels = wrap.querySelectorAll('.analysis-panel');
+  if (panels[idx]) panels[idx].remove();
+  tab.remove();
+  const first = wrap.querySelector('.analysis-tab');
+  if (first) activateTab(first);
+  debouncedSave();
+}
+
+// ============ Categories ============
+function nextCatColor() {
+  const pal = ['cat-gold', 'cat-orange', 'cat-pink', 'cat-cyan', 'cat-violet', 'cat-teal'];
+  return pal[document.querySelectorAll('#map .branch[class*="cat-"]').length % pal.length];
+}
+function addSummaryRow(name, catid) {
+  const summary = document.querySelector('.summary');
+  const row = document.createElement('div');
+  row.className = 'summary-row'; row.dataset.catid = catid;
+  row.innerHTML = `<div class="cat" contenteditable="true">${name}</div><div class="sota-name" contenteditable="true">검증 진행 중</div><div contenteditable="true">요약 입력...</div>`;
+  summary.appendChild(row);
+}
+function addCategory() {
+  const name = prompt('새 AI 카테고리 이름:');
+  if (!name || !name.trim()) return;
+  const color = nextCatColor();
+  const catid = 'cat' + uid();
+  const map = document.getElementById('map');
+  const branch = document.createElement('div');
+  branch.className = 'branch ' + color;
+  branch.dataset.catid = catid;
+  branch.innerHTML = `<div class="branch-head" contenteditable="true">${name}<span class="kicker">새 카테고리</span><span class="cat-del" contenteditable="false" onclick="deleteCategory(event,this)" title="카테고리 삭제">×</span></div>`;
+  branch.appendChild(newNodeEl());
+  const addBtn = document.createElement('button');
+  addBtn.className = 'add-node-btn'; addBtn.type = 'button'; addBtn.textContent = '+ 모델 추가';
+  addBtn.setAttribute('onclick', "addNode(this,'cat')");
+  branch.appendChild(addBtn);
+  map.insertBefore(branch, map.querySelector('.add-cat'));
+  addSummaryRow(name, catid);
+  rewireEvents();
+  branch.querySelectorAll('.sub-list li').forEach(decorateLine);
+  setEditing(editing);
+  debouncedSave();
+}
+function deleteCategory(event, el) {
+  event.stopPropagation();
+  if (!confirm('이 카테고리와 요약 줄을 삭제할까요?')) return;
+  const branch = el.closest('.branch');
+  const catid = branch && branch.dataset.catid;
+  if (branch) branch.remove();
+  if (catid) {
+    document.querySelectorAll(`.summary-row[data-catid="${catid}"]`).forEach(n => n.remove());
+    document.querySelectorAll(`.legend-item[data-catid="${catid}"]`).forEach(n => n.remove());
+  }
+  debouncedSave();
+}
+
+// ============ Wiring + listeners ============
 function rewireEvents() {
   document.querySelectorAll('.node').forEach(wireNode);
   document.querySelectorAll('.branch').forEach(wireBranch);
   document.querySelectorAll('.media-gallery').forEach(wireGallery);
   decorateLines();
 }
-
 document.addEventListener('input', e => {
-  if (e.target.isContentEditable || e.target.closest('[contenteditable=true]')) {
-    debouncedSave();
-  }
+  if (e.target.isContentEditable || e.target.closest('[contenteditable=true]')) debouncedSave();
 });
-
 document.addEventListener('click', e => {
   const d = e.target.closest && e.target.closest('.li-del');
   if (d) { const li = d.closest('li'); if (li) { li.remove(); debouncedSave(); } }
 });
-
 rewireEvents();
-
 window.addEventListener('DOMContentLoaded', async () => {
   await load();
   rewireEvents();
   setEditing(false);
 });
 
-// ============ JSON export / import (manual backup) ============
+// ============ JSON export / import ============
 function exportJSON() {
-  const data = collectState();
-  data.exported = new Date().toISOString();
+  const data = collectState(); data.exported = new Date().toISOString();
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `ai-sota-mindmap-${new Date().toISOString().slice(0,10)}.json`;
-  a.click();
+  const a = document.createElement('a'); a.href = url; a.download = `ai-sota-mindmap-${new Date().toISOString().slice(0,10)}.json`; a.click();
   URL.revokeObjectURL(url);
 }
-
 function importJSON(evt) {
-  const f = evt.target.files[0];
-  if (!f) return;
+  const f = evt.target.files[0]; if (!f) return;
   const reader = new FileReader();
   reader.onload = e => {
     try {
       const data = JSON.parse(e.target.result);
-      applyState(data);
-      rewireEvents();
+      applyState(data); rewireEvents();
       if (!editing) setEditing(true);
       debouncedSave();
-      alert('불러오기 완료 — 편집 모드로 전환됨. 클라우드에 저장됩니다.');
-    } catch (err) {
-      alert('JSON 파싱 실패: ' + err.message);
-    }
+      alert('불러오기 완료 — 편집 모드로 전환됨.');
+    } catch (err) { alert('JSON 파싱 실패: ' + err.message); }
   };
   reader.readAsText(f);
 }
-
 function resetAll() {
-  if (!confirm(cloud
-      ? '이 브라우저의 임시 데이터를 비우고 클라우드 내용으로 다시 불러올까요?'
-      : '모든 편집 내용을 초기화? (이 브라우저 저장분)')) return;
+  if (!confirm(cloud ? '이 브라우저의 임시 데이터를 비우고 클라우드 내용으로 다시 불러올까요?' : '모든 편집 내용을 초기화? (이 브라우저 저장분)')) return;
   if (!cloud) localStorage.removeItem(STORAGE_KEY);
   location.reload();
 }
